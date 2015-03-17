@@ -56,9 +56,8 @@ public class Functions {
 			if(player == null) {
 				throw new ConfigRuntimeException("No online player by that name.", ExceptionType.PlayerOfflineException, t);
 			}
-			IChatBaseComponent icbc = ChatSerializer.a("{text: \"" + message + "\"}");
-			PacketPlayOutChat ppoc = new PacketPlayOutChat(icbc, (byte) 2);
-			player.getHandle().playerConnection.sendPacket(ppoc);
+			IChatBaseComponent actionMessage = ChatSerializer.a("{text: \"" + message + "\"}");
+			player.getHandle().playerConnection.sendPacket(new PacketPlayOutChat(actionMessage, (byte) 2));
 			return CVoid.VOID;
         }
 
@@ -84,7 +83,7 @@ public class Functions {
 	public static class title_msg extends AbstractFunction {
 
 		public Exceptions.ExceptionType[] thrown() {
-			return new ExceptionType[]{ExceptionType.PlayerOfflineException};
+			return new ExceptionType[]{ExceptionType.PlayerOfflineException,ExceptionType.RangeException};
 		}
 
 		public boolean isRestricted() {
@@ -97,12 +96,10 @@ public class Functions {
 
 		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
 			String name = environment.getEnv(CommandHelperEnvironment.class).GetPlayer().getName();
-			CArray msg;
-			if(args.length == 2) {
+			int offset = 0;
+			if(args.length == 3 || args.length == 6) {
 				name = args[0].val();
-				msg = Static.getArray(args[1], t);
-			} else {
-				msg = Static.getArray(args[0], t);
+				offset = 1;
 			}
 
 			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
@@ -112,34 +109,24 @@ public class Functions {
 
 			PlayerConnection connection = player.getHandle().playerConnection;
 
-			int fadein = 20;
-			int stay = 60;
-			int fadeout = 20;
-			if(msg.containsKey("fadein")) {
-				fadein = Static.getInt32(msg.get("fadein", t), t);
+			if(args.length > 3) {
+				int fadein = Static.getInt32(args[2 + offset], t);
+				int stay = Static.getInt32(args[3 + offset], t);
+				int fadeout = Static.getInt32(args[4 + offset], t);
+				connection.sendPacket(new PacketPlayOutTitle(fadein, stay, fadeout));
 			}
-			if(msg.containsKey("stay")) {
-				stay = Static.getInt32(msg.get("stay", t), t);
-			}
-			if(msg.containsKey("fadeout")) {
-				fadeout = Static.getInt32(msg.get("fadeout", t), t);
-			}
-			PacketPlayOutTitle packetPlayOutTimes = new PacketPlayOutTitle(EnumTitleAction.TIMES, null, fadein, stay, fadeout);
-			connection.sendPacket(packetPlayOutTimes);
 
-			if(msg.containsKey("subtitle")) {
-				IChatBaseComponent titleSub = ChatSerializer.a("{\"text\": \"" + msg.get("subtitle", t) + "\"}");
-				PacketPlayOutTitle packetPlayOutSubTitle = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, titleSub);
-				connection.sendPacket(packetPlayOutSubTitle);
+			if(args[1 + offset].nval() != null) {
+				IChatBaseComponent subtitle = ChatSerializer.a("{\"text\": \"" + args[1 + offset].val() + "\"}");
+				connection.sendPacket(new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, subtitle));
 			}
 
 			String title = "";
-			if(msg.containsKey("title")) {
-				title = msg.get("title", t).val();
+			if(args[offset].nval() != null) {
+				title = args[offset].val();
 			}
-			IChatBaseComponent titleMain = ChatSerializer.a("{\"text\": \"" + title + "\"}");
-			PacketPlayOutTitle packetPlayOutTitle = new PacketPlayOutTitle(EnumTitleAction.TITLE, titleMain);
-			connection.sendPacket(packetPlayOutTitle);
+			IChatBaseComponent icbc = ChatSerializer.a("{\"text\": \"" + title + "\"}");
+			connection.sendPacket(new PacketPlayOutTitle(EnumTitleAction.TITLE, icbc));
 
 			return CVoid.VOID;
 		}
@@ -149,14 +136,13 @@ public class Functions {
 		}
 
 		public Integer[] numArgs() {
-			return new Integer[]{1, 2};
+			return new Integer[]{2, 3, 5, 6};
 		}
 
 		public String docs() {
-			return "void {[playerName], titleArray} Sends a title to a player. Array may contain one or more of the"
-					+ " following indexes: title, subtitle, fadein, stay, fadeout. It must contain a title or subtitle"
-					+ " to display to the player. fadein, stay and fadeout must be integers in ticks. Defaults are 20,"
-					+ " 60, 20 respectively.";
+			return "void {[playerName], title, subtitle, [fadein, stay, fadeout]} Sends a title message to a player."
+					+ " fadein, stay and fadeout must be integers in ticks. Defaults are 20, 60, 20 respectively."
+					+ " The title or subtitle can be null.";
 		}
 
 		public Version since() {
