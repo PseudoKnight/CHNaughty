@@ -4,7 +4,6 @@ import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
 import com.laytonsmith.core.Static;
-import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CVoid;
 import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
@@ -14,14 +13,12 @@ import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
 import com.laytonsmith.core.functions.Exceptions.ExceptionType;
-import net.minecraft.server.v1_8_R1.ChatSerializer;
-import net.minecraft.server.v1_8_R1.EnumTitleAction;
-import net.minecraft.server.v1_8_R1.IChatBaseComponent;
-import net.minecraft.server.v1_8_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_8_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_8_R1.PlayerConnection;
+import net.minecraft.server.v1_8_R2.IChatBaseComponent;
+import net.minecraft.server.v1_8_R2.PacketPlayOutChat;
+import net.minecraft.server.v1_8_R2.PacketPlayOutTitle;
+import net.minecraft.server.v1_8_R2.PlayerConnection;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 
 public class Functions {
     public static String docs() {
@@ -56,7 +53,7 @@ public class Functions {
 			if(player == null) {
 				throw new ConfigRuntimeException("No online player by that name.", ExceptionType.PlayerOfflineException, t);
 			}
-			IChatBaseComponent actionMessage = ChatSerializer.a("{text: \"" + message + "\"}");
+			IChatBaseComponent actionMessage = IChatBaseComponent.ChatSerializer.a("{text: \"" + message + "\"}");
 			player.getHandle().playerConnection.sendPacket(new PacketPlayOutChat(actionMessage, (byte) 2));
 			return CVoid.VOID;
         }
@@ -117,16 +114,16 @@ public class Functions {
 			}
 
 			if(args[1 + offset].nval() != null) {
-				IChatBaseComponent subtitle = ChatSerializer.a("{\"text\": \"" + args[1 + offset].val() + "\"}");
-				connection.sendPacket(new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, subtitle));
+				IChatBaseComponent subtitle = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + args[1 + offset].val() + "\"}");
+				connection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, subtitle));
 			}
 
 			String title = "";
 			if(args[offset].nval() != null) {
 				title = args[offset].val();
 			}
-			IChatBaseComponent icbc = ChatSerializer.a("{\"text\": \"" + title + "\"}");
-			connection.sendPacket(new PacketPlayOutTitle(EnumTitleAction.TITLE, icbc));
+			IChatBaseComponent icbc = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + title + "\"}");
+			connection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, icbc));
 
 			return CVoid.VOID;
 		}
