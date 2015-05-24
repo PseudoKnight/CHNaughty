@@ -35,3 +35,11 @@ set_interval(1000, closure(){
   }
 });
 ```
+
+## Tab List Headers/Footers
+### psend_list_header_footer([playerName], header, footer)
+Sends a header and/or footer to a player's tab list. Header or footer can be null.
+
+## Ticks per Second
+### tps()
+Returns an array of average ticks per second over 5, 10 and 15 minutes.
