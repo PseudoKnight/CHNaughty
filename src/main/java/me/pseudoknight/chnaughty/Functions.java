@@ -1,6 +1,8 @@
 package me.pseudoknight.chnaughty;
 
 import com.laytonsmith.PureUtilities.Version;
+import com.laytonsmith.abstraction.MCCommandSender;
+import com.laytonsmith.abstraction.MCPlayer;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
 import com.laytonsmith.core.Static;
@@ -47,7 +49,11 @@ public class Functions {
         }
 
         public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-			String name = environment.getEnv(CommandHelperEnvironment.class).GetPlayer().getName();
+			MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
+			String name = "";
+			if(sender instanceof MCPlayer) {
+				name = sender.getName();
+			}
 			String message = "";
 			if(args.length == 2) {
 				name = args[0].val();
@@ -98,7 +104,11 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-			String name = environment.getEnv(CommandHelperEnvironment.class).GetPlayer().getName();
+			MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
+			String name = "";
+			if(sender instanceof MCPlayer) {
+				name = sender.getName();
+			}
 			int offset = 0;
 			if(args.length == 3 || args.length == 6) {
 				name = args[0].val();
@@ -170,7 +180,11 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-			String name = environment.getEnv(CommandHelperEnvironment.class).GetPlayer().getName();
+			MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
+			String name = "";
+			if(sender instanceof MCPlayer) {
+				name = sender.getName();
+			}
 			int offset = 0;
 			if(args.length == 3) {
 				name = args[0].val();
