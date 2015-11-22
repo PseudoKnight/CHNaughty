@@ -43,3 +43,10 @@ Sends a header and/or footer to a player's tab list. Header or footer can be nul
 ## Ticks per Second
 ### tps()
 Returns an array of average ticks per second over 5, 10 and 15 minutes.
+
+## Mob Attributes
+### get_attribute(entity UUID, attribute)
+Returns a generic attribute (double) of the given mob. Available attributes: attackDamage, followRange, knockbackResistance, movementSpeed, attackDamage. Not all mobs will have every attribute, in which case a NullPointerException will be thrown.
+
+### set_attribute(entity UUID, attribute, double)
+Sets the generi attribute for the given mob.
