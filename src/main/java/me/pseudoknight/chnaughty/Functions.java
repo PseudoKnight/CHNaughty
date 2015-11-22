@@ -17,6 +17,9 @@ import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
 import com.laytonsmith.core.functions.Exceptions.ExceptionType;
+import net.minecraft.server.v1_8_R3.AttributeInstance;
+import net.minecraft.server.v1_8_R3.EntityLiving;
+import net.minecraft.server.v1_8_R3.GenericAttributes;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.MinecraftServer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutChat;
@@ -24,6 +27,7 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
 import net.minecraft.server.v1_8_R3.PlayerConnection;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 
 import java.lang.reflect.Field;
@@ -279,6 +283,136 @@ public class Functions {
 
 		public String docs() {
 			return "array {} Returns an array of average ticks per second over 5, 10 and 15 minutes.";
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_1;
+		}
+
+	}
+
+	@api
+	public static class get_attribute extends AbstractFunction {
+
+		public Exceptions.ExceptionType[] thrown() {
+			return new ExceptionType[]{ExceptionType.IllegalArgumentException};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
+		}
+
+		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
+			AttributeInstance attribute;
+			switch (args[1].val().toLowerCase()) {
+				case "attackdamage":
+					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE);
+					break;
+				case "followrange":
+					attribute = entity.getAttributeInstance(GenericAttributes.FOLLOW_RANGE);
+					break;
+				case "knockbackresistance":
+					attribute = entity.getAttributeInstance(GenericAttributes.c);
+					break;
+				case "maxhealth":
+					attribute = entity.getAttributeInstance(GenericAttributes.maxHealth);
+					break;
+				case "movementspeed":
+					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
+					break;
+				default:
+					throw new ConfigRuntimeException("Unknown attribute.", ExceptionType.IllegalArgumentException, t);
+			}
+			try {
+				return new CDouble(attribute.getValue(), t);
+			} catch (NullPointerException e) {
+				throw new ConfigRuntimeException("This mob does not have this attribute.", ExceptionType.NullPointerException, t);
+			}
+
+		}
+
+		public String getName() {
+			return "get_attribute";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{2};
+		}
+
+		public String docs() {
+			return "double {entity, attribute} Returns the generic attribute of the given mob. Available attributes:"
+					+ " attackDamage, followRange, knockbackResistance, movementSpeed, attackDamage. Not all mobs will"
+					+ " have every attribute, in which case a NullPointerException will be thrown.";
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_1;
+		}
+
+	}
+
+	@api
+	public static class set_attribute extends AbstractFunction {
+
+		public Exceptions.ExceptionType[] thrown() {
+			return new ExceptionType[]{ExceptionType.IllegalArgumentException,ExceptionType.CastException};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
+		}
+
+		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
+			AttributeInstance attribute;
+			switch(args[1].val().toLowerCase()){
+				case "attackdamage":
+					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE);
+					break;
+				case "followrange":
+					attribute = entity.getAttributeInstance(GenericAttributes.FOLLOW_RANGE);
+					break;
+				case "knockbackresistance":
+					attribute = entity.getAttributeInstance(GenericAttributes.c);
+					break;
+				case "maxhealth":
+					attribute = entity.getAttributeInstance(GenericAttributes.maxHealth);
+					break;
+				case "movementspeed":
+					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
+					break;
+				default:
+					throw new ConfigRuntimeException("Unknown attribute.", ExceptionType.IllegalArgumentException, t);
+			}
+			try {
+				attribute.setValue(Static.getDouble(args[2], t));
+			} catch (NullPointerException e) {
+				throw new ConfigRuntimeException("This mob does not have this attribute.", ExceptionType.NullPointerException, t);
+			}
+			return CVoid.VOID;
+		}
+
+		public String getName() {
+			return "set_attribute";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{3};
+		}
+
+		public String docs() {
+			return "void {entity, attribute, value} Sets the generic attribute of the given mob. Available attributes:"
+					+ " attackDamage, followRange, knockbackResistance, movementSpeed, attackDamage. Not all mobs will"
+					+ " have every attribute, in which case a NullPointerException will be thrown.";
 		}
 
 		public Version since() {
