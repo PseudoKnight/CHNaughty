@@ -13,10 +13,14 @@ import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
+import com.laytonsmith.core.exceptions.CRE.CRECastException;
+import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
+import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
+import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
+import com.laytonsmith.core.exceptions.CRE.CRERangeException;
+import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
-import com.laytonsmith.core.functions.Exceptions;
-import com.laytonsmith.core.functions.Exceptions.ExceptionType;
 import net.minecraft.server.v1_8_R3.AttributeInstance;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.GenericAttributes;
@@ -40,8 +44,8 @@ public class Functions {
     @api
     public static class action_msg extends AbstractFunction {
 
-        public Exceptions.ExceptionType[] thrown() {
-            return new ExceptionType[]{ExceptionType.PlayerOfflineException};
+        public Class<? extends CREThrowable>[] thrown() {
+            return new Class[]{CREPlayerOfflineException.class};
         }
 
         public boolean isRestricted() {
@@ -67,7 +71,7 @@ public class Functions {
 			}
 			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
 			if(player == null) {
-				throw new ConfigRuntimeException("No online player by that name.", ExceptionType.PlayerOfflineException, t);
+				throw new CREPlayerOfflineException("No online player by that name.", t);
 			}
 			IChatBaseComponent actionMessage = IChatBaseComponent.ChatSerializer.a("{text: \"" + message + "\"}");
 			player.getHandle().playerConnection.sendPacket(new PacketPlayOutChat(actionMessage, (byte) 2));
@@ -95,8 +99,8 @@ public class Functions {
 	@api
 	public static class title_msg extends AbstractFunction {
 
-		public Exceptions.ExceptionType[] thrown() {
-			return new ExceptionType[]{ExceptionType.PlayerOfflineException,ExceptionType.RangeException};
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class,CRERangeException.class};
 		}
 
 		public boolean isRestricted() {
@@ -121,7 +125,7 @@ public class Functions {
 
 			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
 			if(player == null) {
-				throw new ConfigRuntimeException("No online player by that name.", ExceptionType.PlayerOfflineException, t);
+				throw new CREPlayerOfflineException("No online player by that name.", t);
 			}
 
 			PlayerConnection connection = player.getHandle().playerConnection;
@@ -171,8 +175,8 @@ public class Functions {
 	@api
 	public static class psend_list_header_footer extends AbstractFunction {
 
-		public Exceptions.ExceptionType[] thrown() {
-			return new ExceptionType[]{ExceptionType.PlayerOfflineException};
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class};
 		}
 
 		public boolean isRestricted() {
@@ -197,7 +201,7 @@ public class Functions {
 
 			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
 			if(player == null) {
-				throw new ConfigRuntimeException("No online player by that name.", ExceptionType.PlayerOfflineException, t);
+				throw new CREPlayerOfflineException("No online player by that name.", t);
 			}
 
 			PlayerConnection connection = player.getHandle().playerConnection;
@@ -252,8 +256,8 @@ public class Functions {
 	@api
 	public static class tps extends AbstractFunction {
 
-		public Exceptions.ExceptionType[] thrown() {
-			return new ExceptionType[]{};
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{};
 		}
 
 		public boolean isRestricted() {
@@ -268,7 +272,7 @@ public class Functions {
 			double[] recentTps = MinecraftServer.getServer().recentTps;
 			CArray tps = new CArray(t, 3);
 			for(double d : recentTps) {
-				tps.push(new CDouble(Math.min(Math.round(d * 100.0D) / 100.0D, 20.0D), t));
+				tps.push(new CDouble(Math.min(Math.round(d * 100.0D) / 100.0D, 20.0D), t), t);
 			}
 			return tps;
 		}
@@ -294,8 +298,8 @@ public class Functions {
 	@api
 	public static class get_attribute extends AbstractFunction {
 
-		public Exceptions.ExceptionType[] thrown() {
-			return new ExceptionType[]{ExceptionType.IllegalArgumentException};
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREIllegalArgumentException.class};
 		}
 
 		public boolean isRestricted() {
@@ -326,12 +330,12 @@ public class Functions {
 					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
 					break;
 				default:
-					throw new ConfigRuntimeException("Unknown attribute.", ExceptionType.IllegalArgumentException, t);
+					throw new CREIllegalArgumentException("Unknown attribute.", t);
 			}
 			try {
 				return new CDouble(attribute.getValue(), t);
 			} catch (NullPointerException e) {
-				throw new ConfigRuntimeException("This mob does not have this attribute.", ExceptionType.NullPointerException, t);
+				throw new CRENullPointerException("This mob does not have this attribute.", t);
 			}
 
 		}
@@ -359,8 +363,8 @@ public class Functions {
 	@api
 	public static class set_attribute extends AbstractFunction {
 
-		public Exceptions.ExceptionType[] thrown() {
-			return new ExceptionType[]{ExceptionType.IllegalArgumentException,ExceptionType.CastException};
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREIllegalArgumentException.class,CRECastException.class};
 		}
 
 		public boolean isRestricted() {
@@ -391,12 +395,12 @@ public class Functions {
 					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
 					break;
 				default:
-					throw new ConfigRuntimeException("Unknown attribute.", ExceptionType.IllegalArgumentException, t);
+					throw new CREIllegalArgumentException("Unknown attribute.", t);
 			}
 			try {
 				attribute.setValue(Static.getDouble(args[2], t));
 			} catch (NullPointerException e) {
-				throw new ConfigRuntimeException("This mob does not have this attribute.", ExceptionType.NullPointerException, t);
+				throw new CRENullPointerException("This mob does not have this attribute.", t);
 			}
 			return CVoid.VOID;
 		}
