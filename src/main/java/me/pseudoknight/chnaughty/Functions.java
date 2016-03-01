@@ -73,7 +73,7 @@ public class Functions {
 			if(player == null) {
 				throw new CREPlayerOfflineException("No online player by that name.", t);
 			}
-			IChatBaseComponent actionMessage = IChatBaseComponent.ChatSerializer.a("{text: \"" + message + "\"}");
+			IChatBaseComponent actionMessage = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + message + "\"}");
 			player.getHandle().playerConnection.sendPacket(new PacketPlayOutChat(actionMessage, (byte) 2));
 			return CVoid.VOID;
         }
