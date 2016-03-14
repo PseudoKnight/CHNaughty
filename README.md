@@ -46,7 +46,7 @@ Returns an array of average ticks per second over 5, 10 and 15 minutes. eg. {19.
 
 ## Mob Attributes
 ### get_attribute(entity UUID, attribute)
-Returns a generic attribute's value as a double for the specified mob. Available attributes: attackDamage, followRange, knockbackResistance, movementSpeed, and attackDamage. Not all mobs will have every attribute, in which case a NullPointerException will be thrown.
+Returns a generic attribute's value as a double for the specified mob. Available attributes: attackDamage, followRange, knockbackResistance, movementSpeed, and maxHealth. Not all mobs will have every attribute, in which case a NullPointerException will be thrown.
 
 ### set_attribute(entity UUID, attribute, double)
 Sets the generic attribute for the given mob. You can consult the Minecraft wiki for appropriate ranges.
