@@ -329,6 +329,15 @@ public class Functions {
 				case "movementspeed":
 					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
 					break;
+				case "attackspeed":
+					attribute = entity.getAttributeInstance(GenericAttributes.f);
+					break;
+				case "armor":
+					attribute = entity.getAttributeInstance(GenericAttributes.g);
+					break;
+				case "luck":
+					attribute = entity.getAttributeInstance(GenericAttributes.h);
+					break;
 				default:
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
 			}
@@ -350,8 +359,9 @@ public class Functions {
 
 		public String docs() {
 			return "double {entity, attribute} Returns the generic attribute of the given mob. Available attributes:"
-					+ " attackDamage, followRange, knockbackResistance, movementSpeed, attackDamage. Not all mobs will"
-					+ " have every attribute, in which case a NullPointerException will be thrown.";
+					+ " attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor,"
+					+ " and luck. Not all mobs will have every attribute, in which case a NullPointerException will be"
+					+ " thrown.";
 		}
 
 		public Version since() {
@@ -394,6 +404,15 @@ public class Functions {
 				case "movementspeed":
 					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
 					break;
+				case "attackspeed":
+					attribute = entity.getAttributeInstance(GenericAttributes.f);
+					break;
+				case "armor":
+					attribute = entity.getAttributeInstance(GenericAttributes.g);
+					break;
+				case "luck":
+					attribute = entity.getAttributeInstance(GenericAttributes.h);
+					break;
 				default:
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
 			}
@@ -415,8 +434,9 @@ public class Functions {
 
 		public String docs() {
 			return "void {entity, attribute, value} Sets the generic attribute of the given mob. Available attributes:"
-					+ " attackDamage, followRange, knockbackResistance, movementSpeed, attackDamage. Not all mobs will"
-					+ " have every attribute, in which case a NullPointerException will be thrown.";
+					+ " attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor,"
+					+ " and luck. Not all mobs will have every attribute, in which case a NullPointerException will be"
+					+ " thrown.";
 		}
 
 		public Version since() {
