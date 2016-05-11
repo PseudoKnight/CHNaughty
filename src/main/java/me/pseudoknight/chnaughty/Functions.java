@@ -21,18 +21,18 @@ import com.laytonsmith.core.exceptions.CRE.CRERangeException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
-import net.minecraft.server.v1_9_R1.AttributeInstance;
-import net.minecraft.server.v1_9_R1.EntityLiving;
-import net.minecraft.server.v1_9_R1.GenericAttributes;
-import net.minecraft.server.v1_9_R1.IChatBaseComponent;
-import net.minecraft.server.v1_9_R1.MinecraftServer;
-import net.minecraft.server.v1_9_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_9_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_9_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_9_R1.PlayerConnection;
+import net.minecraft.server.v1_9_R2.AttributeInstance;
+import net.minecraft.server.v1_9_R2.EntityLiving;
+import net.minecraft.server.v1_9_R2.GenericAttributes;
+import net.minecraft.server.v1_9_R2.IChatBaseComponent;
+import net.minecraft.server.v1_9_R2.MinecraftServer;
+import net.minecraft.server.v1_9_R2.PacketPlayOutChat;
+import net.minecraft.server.v1_9_R2.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_9_R2.PacketPlayOutTitle;
+import net.minecraft.server.v1_9_R2.PlayerConnection;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_9_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 
 import java.lang.reflect.Field;
 
@@ -335,8 +335,11 @@ public class Functions {
 				case "armor":
 					attribute = entity.getAttributeInstance(GenericAttributes.g);
 					break;
-				case "luck":
+				case "armortoughness":
 					attribute = entity.getAttributeInstance(GenericAttributes.h);
+					break;
+				case "luck":
+					attribute = entity.getAttributeInstance(GenericAttributes.i);
 					break;
 				default:
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
@@ -360,8 +363,8 @@ public class Functions {
 		public String docs() {
 			return "double {entity, attribute} Returns the generic attribute of the given mob. Available attributes:"
 					+ " attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor,"
-					+ " and luck. Not all mobs will have every attribute, in which case a NullPointerException will be"
-					+ " thrown.";
+					+ " armortoughness, and luck. Not all mobs will have every attribute, in which case a"
+					+ " NullPointerException will be thrown.";
 		}
 
 		public Version since() {
@@ -410,8 +413,11 @@ public class Functions {
 				case "armor":
 					attribute = entity.getAttributeInstance(GenericAttributes.g);
 					break;
-				case "luck":
+				case "armortoughness":
 					attribute = entity.getAttributeInstance(GenericAttributes.h);
+					break;
+				case "luck":
+					attribute = entity.getAttributeInstance(GenericAttributes.i);
 					break;
 				default:
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
@@ -435,8 +441,8 @@ public class Functions {
 		public String docs() {
 			return "void {entity, attribute, value} Sets the generic attribute of the given mob. Available attributes:"
 					+ " attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor,"
-					+ " and luck. Not all mobs will have every attribute, in which case a NullPointerException will be"
-					+ " thrown.";
+					+ " armortoughness, and luck. Not all mobs will have every attribute, in which case a"
+					+ " NullPointerException will be thrown.";
 		}
 
 		public Version since() {
