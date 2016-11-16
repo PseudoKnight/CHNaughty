@@ -1,5 +1,6 @@
 package me.pseudoknight.chnaughty;
 
+import com.google.gson.JsonSyntaxException;
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.abstraction.MCCommandSender;
 import com.laytonsmith.abstraction.MCPlayer;
@@ -34,6 +35,7 @@ import net.minecraft.server.v1_10_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_10_R1.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftMetaBook;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
@@ -494,17 +496,26 @@ public class Functions {
 			}
 
 			if(!(pages instanceof CArray)){
-				throw new CREFormatException("Expected an item array.", t);
+				throw new CREFormatException("Expected an array.", t);
 			}
-			CArray pageArray = (CArray) pages;
-			List<String> pageList = new ArrayList<>();
-			for (int i = 0; i < pageArray.size(); i++) {
-				pageList.add(pageArray.get(i, t).val());
-			}
-
 			ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
 			BookMeta bookmeta = (BookMeta) book.getItemMeta();
-			bookmeta.setPages(pageList);
+			CArray pageArray = (CArray) pages;
+			try {
+				List<IChatBaseComponent> pageList = new ArrayList<>();
+				for (int i = 0; i < pageArray.size(); i++) {
+					String json = pageArray.get(i, t).val();
+					IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(json);
+					pageList.add(component);
+				}
+				((CraftMetaBook) bookmeta).pages = pageList;
+			} catch(JsonSyntaxException ex) {
+				List<String> pageList = new ArrayList<>();
+				for (int i = 0; i < pageArray.size(); i++) {
+					pageList.add(pageArray.get(i, t).val());
+				}
+				bookmeta.setPages(pageList);
+			}
 			book.setItemMeta(bookmeta);
 
 			ItemStack currentItem = player.getInventory().getItemInMainHand();
@@ -526,7 +537,9 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], pages} Sends a virtual book to a player. Accepts an array of pages.";
+			return "void {[playerName], pages} Sends a virtual book to a player. Accepts an array of pages."
+					+ " All pages must be either raw JSON or strings. If the JSON is not formatted correctly, "
+					+ " it will fall back to string output.";
 		}
 
 		public Version since() {
