@@ -14,6 +14,7 @@ import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.CRE.CRECastException;
+import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
@@ -23,6 +24,7 @@ import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import net.minecraft.server.v1_10_R1.AttributeInstance;
 import net.minecraft.server.v1_10_R1.EntityLiving;
+import net.minecraft.server.v1_10_R1.EnumHand;
 import net.minecraft.server.v1_10_R1.GenericAttributes;
 import net.minecraft.server.v1_10_R1.IChatBaseComponent;
 import net.minecraft.server.v1_10_R1.MinecraftServer;
@@ -31,10 +33,16 @@ import net.minecraft.server.v1_10_R1.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_10_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_10_R1.PlayerConnection;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_10_R1.inventory.CraftItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Functions {
     public static String docs() {
@@ -447,6 +455,82 @@ public class Functions {
 
 		public Version since() {
 			return CHVersion.V3_3_1;
+		}
+
+	}
+
+	@api
+	public static class open_book extends AbstractFunction {
+
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CREFormatException.class};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
+		}
+
+		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+			MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
+			String name = "";
+			if(sender instanceof MCPlayer) {
+				name = sender.getName();
+			}
+			Construct pages;
+			if(args.length == 2) {
+				name = args[0].val();
+				pages = args[1];
+			} else {
+				pages = args[0];
+			}
+
+			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
+			if(player == null) {
+				throw new CREPlayerOfflineException("No online player by that name.", t);
+			}
+
+			if(!(pages instanceof CArray)){
+				throw new CREFormatException("Expected an item array.", t);
+			}
+			CArray pageArray = (CArray) pages;
+			List<String> pageList = new ArrayList<>();
+			for (int i = 0; i < pageArray.size(); i++) {
+				pageList.add(pageArray.get(i, t).val());
+			}
+
+			ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+			BookMeta bookmeta = (BookMeta) book.getItemMeta();
+			bookmeta.setPages(pageList);
+			book.setItemMeta(bookmeta);
+
+			ItemStack currentItem = player.getInventory().getItemInMainHand();
+			player.getInventory().setItemInMainHand(book);
+			try {
+				player.getHandle().a(CraftItemStack.asNMSCopy(book), EnumHand.MAIN_HAND);
+			} finally {
+				player.getInventory().setItemInMainHand(currentItem);
+			}
+			return CVoid.VOID;
+		}
+
+		public String getName() {
+			return "open_book";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{1, 2};
+		}
+
+		public String docs() {
+			return "void {[playerName], book} Sends a virtual book to a player.";
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_2;
 		}
 
 	}
