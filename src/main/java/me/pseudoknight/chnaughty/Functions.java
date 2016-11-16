@@ -526,7 +526,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], book} Sends a virtual book to a player.";
+			return "void {[playerName], pages} Sends a virtual book to a player. Accepts an array of pages.";
 		}
 
 		public Version since() {
