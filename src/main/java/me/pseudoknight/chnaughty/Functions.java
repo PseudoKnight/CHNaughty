@@ -23,26 +23,29 @@ import com.laytonsmith.core.exceptions.CRE.CRERangeException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
-import net.minecraft.server.v1_11_R1.AttributeInstance;
-import net.minecraft.server.v1_11_R1.EntityLiving;
-import net.minecraft.server.v1_11_R1.EnumHand;
-import net.minecraft.server.v1_11_R1.GenericAttributes;
-import net.minecraft.server.v1_11_R1.IChatBaseComponent;
-import net.minecraft.server.v1_11_R1.MinecraftServer;
-import net.minecraft.server.v1_11_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_11_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_11_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_11_R1.PlayerConnection;
+import io.netty.buffer.Unpooled;
+import net.minecraft.server.v1_12_R1.AttributeInstance;
+import net.minecraft.server.v1_12_R1.ChatMessageType;
+import net.minecraft.server.v1_12_R1.EntityLiving;
+import net.minecraft.server.v1_12_R1.EnumHand;
+import net.minecraft.server.v1_12_R1.GenericAttributes;
+import net.minecraft.server.v1_12_R1.IChatBaseComponent;
+import net.minecraft.server.v1_12_R1.MinecraftServer;
+import net.minecraft.server.v1_12_R1.PacketDataSerializer;
+import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
+import net.minecraft.server.v1_12_R1.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftMetaBook;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMetaBook;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +87,7 @@ public class Functions {
 				throw new CREPlayerOfflineException("No online player by that name.", t);
 			}
 			IChatBaseComponent actionMessage = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + message + "\"}");
-			player.getHandle().playerConnection.sendPacket(new PacketPlayOutChat(actionMessage, (byte) 2));
+			player.getHandle().playerConnection.sendPacket(new PacketPlayOutChat(actionMessage, ChatMessageType.GAME_INFO));
 			return CVoid.VOID;
         }
 
@@ -226,19 +229,16 @@ public class Functions {
 				footer = "";
 			}
 
-			IChatBaseComponent listHeader = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + header + "\"}");
-			IChatBaseComponent listFooter = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + footer + "\"}");
+			PacketDataSerializer serializer = new PacketDataSerializer(Unpooled.buffer());
+			serializer.a("{\"text\": \"" + header + "\"}");
+			serializer.a("{\"text\": \"" + footer + "\"}");
 
-			PacketPlayOutPlayerListHeaderFooter listPacket = new PacketPlayOutPlayerListHeaderFooter(listHeader);
-
+			PacketPlayOutPlayerListHeaderFooter listPacket = new PacketPlayOutPlayerListHeaderFooter();
 			try {
-				Field field = listPacket.getClass().getDeclaredField("b");
-				field.setAccessible(true);
-				field.set(listPacket, listFooter);
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
+				listPacket.a(serializer);
 				connection.sendPacket(listPacket);
+			} catch(IOException ex) {
+				// failed
 			}
 
 			return CVoid.VOID;
@@ -336,20 +336,23 @@ public class Functions {
 				case "maxhealth":
 					attribute = entity.getAttributeInstance(GenericAttributes.maxHealth);
 					break;
+				case "flyingspeed":
+					attribute = entity.getAttributeInstance(GenericAttributes.e);
+					break;
 				case "movementspeed":
 					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
 					break;
 				case "attackspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.f);
-					break;
-				case "armor":
 					attribute = entity.getAttributeInstance(GenericAttributes.g);
 					break;
-				case "armortoughness":
+				case "armor":
 					attribute = entity.getAttributeInstance(GenericAttributes.h);
 					break;
-				case "luck":
+				case "armortoughness":
 					attribute = entity.getAttributeInstance(GenericAttributes.i);
+					break;
+				case "luck":
+					attribute = entity.getAttributeInstance(GenericAttributes.j);
 					break;
 				default:
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
@@ -414,20 +417,23 @@ public class Functions {
 				case "maxhealth":
 					attribute = entity.getAttributeInstance(GenericAttributes.maxHealth);
 					break;
+				case "flyingspeed":
+					attribute = entity.getAttributeInstance(GenericAttributes.e);
+					break;
 				case "movementspeed":
 					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
 					break;
 				case "attackspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.f);
-					break;
-				case "armor":
 					attribute = entity.getAttributeInstance(GenericAttributes.g);
 					break;
-				case "armortoughness":
+				case "armor":
 					attribute = entity.getAttributeInstance(GenericAttributes.h);
 					break;
-				case "luck":
+				case "armortoughness":
 					attribute = entity.getAttributeInstance(GenericAttributes.i);
+					break;
+				case "luck":
+					attribute = entity.getAttributeInstance(GenericAttributes.j);
 					break;
 				default:
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
