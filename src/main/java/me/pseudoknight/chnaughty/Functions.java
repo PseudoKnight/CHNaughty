@@ -3,20 +3,30 @@ package me.pseudoknight.chnaughty;
 import com.google.gson.JsonSyntaxException;
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.abstraction.MCCommandSender;
+import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
+import com.laytonsmith.abstraction.MCWorld;
+import com.laytonsmith.abstraction.StaticLayer;
+import com.laytonsmith.abstraction.bukkit.BukkitMCWorld;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
+import com.laytonsmith.core.ObjectGenerator;
 import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.CArray;
+import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CDouble;
+import com.laytonsmith.core.constructs.CInt;
+import com.laytonsmith.core.constructs.CString;
 import com.laytonsmith.core.constructs.CVoid;
 import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.CRE.CRECastException;
+import com.laytonsmith.core.exceptions.CRE.CREException;
 import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
+import com.laytonsmith.core.exceptions.CRE.CRELengthException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
 import com.laytonsmith.core.exceptions.CRE.CRERangeException;
@@ -25,20 +35,31 @@ import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import io.netty.buffer.Unpooled;
 import net.minecraft.server.v1_12_R1.AttributeInstance;
+import net.minecraft.server.v1_12_R1.AxisAlignedBB;
+import net.minecraft.server.v1_12_R1.BlockPosition;
+import net.minecraft.server.v1_12_R1.BlockStateBoolean;
 import net.minecraft.server.v1_12_R1.ChatMessageType;
+import net.minecraft.server.v1_12_R1.Entity;
+import net.minecraft.server.v1_12_R1.EntityHuman;
 import net.minecraft.server.v1_12_R1.EntityLiving;
+import net.minecraft.server.v1_12_R1.EntityPlayer;
 import net.minecraft.server.v1_12_R1.EnumHand;
 import net.minecraft.server.v1_12_R1.GenericAttributes;
+import net.minecraft.server.v1_12_R1.IBlockData;
 import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 import net.minecraft.server.v1_12_R1.MinecraftServer;
+import net.minecraft.server.v1_12_R1.MovingObjectPosition;
 import net.minecraft.server.v1_12_R1.PacketDataSerializer;
 import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
+import net.minecraft.server.v1_12_R1.Vec3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMetaBook;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
@@ -47,12 +68,329 @@ import org.bukkit.inventory.meta.BookMeta;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 public class Functions {
     public static String docs() {
         return "Functions that lack a Bukkit or Spigot API interface.";
     }
+
+    @api
+	public static class relative_teleport extends AbstractFunction {
+
+		@Override
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CREException.class,
+					CREFormatException.class};
+		}
+
+		@Override
+		public boolean isRestricted() {
+			return true;
+		}
+
+		@Override
+		public Boolean runAsync() {
+			return false;
+		}
+
+		@Override
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			String name = "";
+			if(args.length == 3 || args.length == 6) {
+				name = args[0].val();
+			} else {
+				MCPlayer player = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				if(player != null) {
+					name = player.getName();
+				}
+			}
+
+			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
+			if(player == null) {
+				throw new CREPlayerOfflineException("No online player by that name.", t);
+			}
+			PlayerConnection connection = player.getHandle().playerConnection;
+
+			MCLocation l;
+			if(!(args[args.length - 1] instanceof CArray)){
+				throw new CRECastException("Expecting an array at parameter " + args.length + " of set_ploc", t);
+			}
+			CArray ca = (CArray) args[args.length - 1];
+
+			l = ObjectGenerator.GetGenerator().location(ca, null, t);
+
+			connection.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch(),
+					EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class), PlayerTeleportEvent.TeleportCause.PLUGIN);
+			return CVoid.VOID;
+		}
+
+		@Override
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+		@Override
+		public String getName() {
+			return "relative_teleport";
+		}
+
+		@Override
+		public Integer[] numArgs() {
+			return new Integer[]{1, 2};
+		}
+
+		@Override
+		public String docs() {
+			return "void {[playerName], location} Sets the player location relative to where they are on their client."
+					+ " This can be used for smooth teleportation.";
+		}
+	}
+
+	@api
+	public static class psleep extends AbstractFunction {
+
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CREException.class};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
+		}
+
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			MCPlayer p;
+			MCLocation loc;
+			if(args.length == 2){
+				p = Static.GetPlayer(args[0].val(), t);
+				loc = ObjectGenerator.GetGenerator().location(args[1], p.getWorld(), t);
+			} else {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+				loc = ObjectGenerator.GetGenerator().location(args[0], p.getWorld(), t);
+			}
+			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+			BlockPosition pos = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+			EntityHuman.EnumBedResult result;
+			try {
+				result = player.a(pos);
+			} catch(IllegalArgumentException ex) {
+				throw new CREException("That is not a bed.", t);
+			}
+			switch(result) {
+				case NOT_POSSIBLE_HERE:
+					throw new CREException("It's not possible to sleep here.", t);
+				case NOT_POSSIBLE_NOW:
+					throw new CREException("It's not possible to sleep now.", t);
+				case TOO_FAR_AWAY:
+					throw new CREException("That bed is too far away.", t);
+				case OTHER_PROBLEM:
+					throw new CREException("Can't sleep for some reason.", t);
+				case NOT_SAFE:
+					throw new CREException("It's not safe to sleep.", t);
+				case OK:
+					IBlockData blockData = player.getWorld().getType(pos);
+					blockData = blockData.set(BlockStateBoolean.of("occupied"), true);
+					player.getWorld().setTypeAndData(pos, blockData, 4);
+			}
+			return CVoid.VOID;
+		}
+
+		public String getName() {
+			return "psleep";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{1, 2};
+		}
+
+		public String docs() {
+			return "void {[playerName], location} Sets the player sleeping at the specified bed location. Throws"
+					+ " an exception when unsuccessful.";
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+	}
+
+    @api
+	public static class ray_trace extends AbstractFunction {
+
+		@Override
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CREFormatException.class,
+					CRERangeException.class, CRECastException.class};
+		}
+
+		@Override
+		public boolean isRestricted() {
+			return true;
+		}
+
+		@Override
+		public Boolean runAsync() {
+			return false;
+		}
+
+		@Override
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			MCPlayer p;
+			double range = 128;
+			Construct clocation = null;
+			if(args.length == 0) {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+			} else if(args.length == 1) {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+				range = Static.getDouble32(args[0], t);
+			} else if(args.length == 2) {
+				if(args[0] instanceof CArray) {
+					p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+					Static.AssertPlayerNonNull(p, t);
+					clocation = args[0];
+				} else {
+					p = Static.GetPlayer(args[0].val(), t);
+				}
+				range = Static.getDouble32(args[1], t);
+			} else {
+				p = Static.GetPlayer(args[0].val(), t);
+				clocation = args[1];
+				range = Static.getDouble32(args[2], t);
+			}
+
+			boolean hitBlock = false;
+
+			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+
+			Vec3D v3d1;
+			Vec3D v;
+			if(clocation == null) {
+				v3d1 = new Vec3D(player.locX, player.locY + p.getEyeHeight(), player.locZ);
+				v = player.aJ();
+			} else {
+				MCLocation l = ObjectGenerator.GetGenerator().location(clocation, p.getWorld(), t);
+				v3d1 = new Vec3D(l.getX(), l.getY(), l.getZ());
+				double yaw = Math.toRadians(l.getYaw() + 90);
+				double pitch = Math.toRadians(-l.getPitch());
+				v = new Vec3D(Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch));
+			}
+			Vec3D v3d2 = v3d1.add(v.x * range, v.y * range, v.z * range);
+
+			net.minecraft.server.v1_12_R1.World world = player.getWorld();
+			MovingObjectPosition mop = world.rayTrace(v3d1, v3d2, false, true, false);
+			if(mop != null) {
+				v3d2 = mop.pos;
+				hitBlock = true;
+			}
+
+			MCWorld w = new BukkitMCWorld(world.getWorld());
+			CArray entities = new CArray(t);
+			for(Entity entity : world.entityList) {
+				if(entity.isAlive() && !entity.equals(player)) {
+					AxisAlignedBB bb = entity.getBoundingBox();
+					MovingObjectPosition hit = bb.b(v3d1, v3d2);
+					if(hit != null){
+						CArray entityArray = CArray.GetAssociativeArray(t);
+						entityArray.set("uuid", new CString(entity.getUniqueID().toString(), t), t);
+						MCLocation l = StaticLayer.GetLocation(w, hit.pos.x, hit.pos.y, hit.pos.z);
+						entityArray.set("location", ObjectGenerator.GetGenerator().location(l, false), t);
+						entities.push(entityArray, t);
+					}
+				}
+			}
+
+			CArray hits = CArray.GetAssociativeArray(t);
+			hits.set("hitblock", CBoolean.get(hitBlock), t);
+			hits.set("entities", entities, t);
+			if(clocation == null) {
+				MCLocation l1 = StaticLayer.GetLocation(w, v3d1.x, v3d1.y, v3d1.z, player.yaw, player.pitch);
+				hits.set("origin", ObjectGenerator.GetGenerator().location(l1), t);
+			} else {
+				hits.set("origin", clocation, t);
+			}
+			MCLocation l2 = StaticLayer.GetLocation(w, v3d2.x, v3d2.y, v3d2.z);
+			hits.set("location", ObjectGenerator.GetGenerator().location(l2, false), t);
+			return hits;
+		}
+
+		@Override
+		public CHVersion since() {
+			return CHVersion.V3_3_2;
+		}
+
+		@Override
+		public String getName() {
+			return "ray_trace";
+		}
+
+		@Override
+		public Integer[] numArgs() {
+			return new Integer[]{0,1,2,3};
+		}
+
+		@Override
+		public String docs() {
+			return "void {[player, [location]], range} Returns an array of result data from a ray trace from the"
+					+ " player's eye location or the given location. Result array contains the following keys:"
+					+ " 'hitblock' is whether or not a block was hit; 'location' contains the location where the ray"
+					+ " trace ends; 'origin' contains the location where the ray trace starts (useful if you don't"
+					+ " specify a location manually); 'entities' contains an array of hit entities where each array"
+					+ " contains a 'location' key and 'uuid' key.";
+		}
+	}
+
+	@api
+	public static class ping extends AbstractFunction {
+
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
+		}
+
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			MCPlayer p;
+			if(args.length == 1){
+				p = Static.GetPlayer(args[0].val(), t);
+			} else {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+			}
+			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+			return new CInt(player.ping, t);
+		}
+
+		public String getName() {
+			return "ping";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{0, 1};
+		}
+
+		public String docs() {
+			return "void {[playerName]} Gets the player's ping.";
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+	}
  
     @api
     public static class action_msg extends AbstractFunction {
@@ -70,16 +408,16 @@ public class Functions {
         }
 
         public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-			MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
 			String name = "";
-			if(sender instanceof MCPlayer) {
-				name = sender.getName();
-			}
 			String message;
 			if(args.length == 2) {
 				name = args[0].val();
 				message = args[1].val();
 			} else {
+				MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
+				if(sender instanceof MCPlayer) {
+					name = sender.getName();
+				}
 				message = args[0].val();
 			}
 			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
@@ -125,15 +463,16 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-			MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
 			String name = "";
-			if(sender instanceof MCPlayer) {
-				name = sender.getName();
-			}
 			int offset = 0;
 			if(args.length == 3 || args.length == 6) {
 				name = args[0].val();
 				offset = 1;
+			} else {
+				MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
+				if(sender instanceof MCPlayer) {
+					name = sender.getName();
+				}
 			}
 
 			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
@@ -176,7 +515,7 @@ public class Functions {
 		public String docs() {
 			return "void {[playerName], title, subtitle, [fadein, stay, fadeout]} Sends a title message to a player."
 					+ " fadein, stay and fadeout must be integers in ticks. Defaults are 20, 60, 20 respectively."
-					+ " The title or subtitle can be null.";
+					+ " The title or subtitle can be null. (Deprecated in favor of title())";
 		}
 
 		public Version since() {
@@ -201,15 +540,16 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-			MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
 			String name = "";
-			if(sender instanceof MCPlayer) {
-				name = sender.getName();
-			}
 			int offset = 0;
 			if(args.length == 3) {
 				name = args[0].val();
 				offset = 1;
+			} else {
+				MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
+				if(sender instanceof MCPlayer) {
+					name = sender.getName();
+				}
 			}
 
 			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
@@ -483,16 +823,16 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-			MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
 			String name = "";
-			if(sender instanceof MCPlayer) {
-				name = sender.getName();
-			}
 			Construct pages;
 			if(args.length == 2) {
 				name = args[0].val();
 				pages = args[1];
 			} else {
+				MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
+				if(sender instanceof MCPlayer) {
+					name = sender.getName();
+				}
 				pages = args[0];
 			}
 
