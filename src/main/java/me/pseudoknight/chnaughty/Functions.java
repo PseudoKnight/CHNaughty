@@ -338,7 +338,7 @@ public class Functions {
 
 		@Override
 		public String docs() {
-			return "void {[player, [location]], range} Returns an array of result data from a ray trace from the"
+			return "array {[player, [location]], range} Returns an array of result data from a ray trace from the"
 					+ " player's eye location or the given location. Result array contains the following keys:"
 					+ " 'hitblock' is whether or not a block was hit; 'location' contains the location where the ray"
 					+ " trace ends; 'origin' contains the location where the ray trace starts (useful if you don't"
@@ -383,7 +383,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName]} Gets the player's ping.";
+			return "int {[playerName]} Gets the player's ping.";
 		}
 
 		public Version since() {

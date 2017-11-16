@@ -2,6 +2,22 @@
 
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
+## Relative/Smooth Teleports
+### relative_teleport([playerName], relativeLocation)
+Sets the player location relative to where they are on their client. This can be used for smooth teleportation. The location is not an absolute world location. X would be how many meters along the x coordinate the location is from the player's current location.
+
+## Forced Sleeping
+### psleep([playerName], bedLocation)
+Sets the player sleeping at the specified bed location. Throws an exception when unsuccessful. The following conditions must be met for a player to sleep: the location must be a bed, the player must be near it, it must be night and there must not be hostile mobs nearby.
+
+## Player Ping
+### ping([playerName])
+Returns the player's ping to the server. This data is stored on the server, so the accuracy of the result is dependent on the server's method.
+
+## Ray Tracing
+### ray_trace([playerName], [location], [range])
+Returns an array of result data from a ray trace from the player's eye location or the given location. Result array contains the following keys: 'hitblock' is whether or not a block was hit; 'location' contains the location where the ray trace ends; 'origin' contains the location where the ray trace starts (useful if you don't specify a location manually); 'entities' contains an array of hit entities where each array contains a 'location' key and 'uuid' key.
+
 ## Action Messages
 ### action_msg([playerName], message)
 Sends a message to the action bar, located right above the player's hotbar.
@@ -14,27 +30,7 @@ if(function_exists('action_msg')) {
 
 ## Title Messages
 ### title_msg([playerName], title, subtitle, [fadein, stay, fadeout])
-Sends a title message to a player. The fadein, stay and fadeout arguments must be integers representing time in ticks (50ms). Defaults are 20, 60, 20 respectively. The title or subtitle can be null. If a new title message is sent while one is in progress for that player, the new function will use the previous title arguments if they're not provided. 
-
-```
-if(function_exists('title_msg')) {
-  title_msg('PseudoKnight', null, 'Spleef', 20, 60, 20);
-}
-@countdown = array(3);
-set_interval(1000, closure(){
-  if(@countdown[0] > 0) {
-    if(function_exists('title_msg')) {
-      title_msg('PseudoKnight', @countdown[0], null, 0, 60, 20);
-    }
-    @countdown[0] -= 1;
-  } else {
-    if(function_exists('title_msg')) {
-      title_msg('PseudoKnight', color('green').'GO!', null, 0, 0, 20);
-    }
-    clear_task();
-  }
-});
-```
+Deprecated for title() in CommandHelper. Sends a title message to a player. The fadein, stay and fadeout arguments must be integers representing time in ticks (50ms). Defaults are 20, 60, 20 respectively. The title or subtitle can be null. If a new title message is sent while one is in progress for that player, the new function will use the previous title arguments if they're not provided.
 
 ## Tab List Headers/Footers
 ### psend_list_header_footer([playerName], header, footer)
