@@ -893,4 +893,54 @@ public class Functions {
 		}
 
 	}
+
+	@api
+	public static class set_parrow_count extends AbstractFunction {
+
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CRECastException.class,
+					CRERangeException.class};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
+		}
+
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			MCPlayer p;
+			int arrowCount;
+			if(args.length == 2){
+				p = Static.GetPlayer(args[0].val(), t);
+				arrowCount = Static.getInt32(args[1], t);
+			} else {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+				arrowCount = Static.getInt32(args[0], t);
+			}
+			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+			player.setArrowCount(arrowCount);
+			return CVoid.VOID;
+		}
+
+		public String getName() {
+			return "set_parrow_count";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{1, 2};
+		}
+
+		public String docs() {
+			return "int {[playerName], count} Sets the player's body arrow count.";
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+	}
 }
