@@ -14,6 +14,14 @@ Sets the player sleeping at the specified bed location. Throws an exception when
 ### ping([playerName])
 Returns the player's ping to the server. This data is stored on the server, so the accuracy of the result is dependent on the server's method.
 
+## Player Animation
+### pswing_hand([playerName], [hand])
+Swing the player's hand in an attack animation. The hand parameter can be either main_hand (default) or off_hand.
+
+## Player Arrows
+### set_parrow_count([playerName], count)
+Sets the player's body arrow count.
+
 ## Ray Tracing
 ### ray_trace([playerName], [location], [range])
 Returns an array of result data from a ray trace from the player's eye location or the given location. Result array contains the following keys: 'hitblock' is whether or not a block was hit; 'location' contains the location where the ray trace ends; 'origin' contains the location where the ray trace starts (useful if you don't specify a location manually); 'entities' contains an array of hit entities where each array contains a 'location' key and 'uuid' key.

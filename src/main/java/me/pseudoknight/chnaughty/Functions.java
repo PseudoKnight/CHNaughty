@@ -937,7 +937,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "int {[playerName], count} Sets the player's body arrow count.";
+			return "void {[playerName], count} Sets the player's body arrow count.";
 		}
 
 		public Version since() {
@@ -954,7 +954,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "int {[playerName], [hand]} Swing the player's hand in an attack animation. The hand parameter can"
+			return "void {[playerName], [hand]} Swing the player's hand in an attack animation. The hand parameter can"
 					+ " be either main_hand (default) or off_hand.";
 		}
 
