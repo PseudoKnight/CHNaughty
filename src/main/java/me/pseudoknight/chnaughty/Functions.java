@@ -50,6 +50,7 @@ import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 import net.minecraft.server.v1_12_R1.MinecraftServer;
 import net.minecraft.server.v1_12_R1.MovingObjectPosition;
 import net.minecraft.server.v1_12_R1.PacketDataSerializer;
+import net.minecraft.server.v1_12_R1.PacketPlayOutAnimation;
 import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
@@ -922,6 +923,7 @@ public class Functions {
 				arrowCount = Static.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+			player.playerConnection.sendPacket(new PacketPlayOutAnimation(player, 0));
 			player.setArrowCount(arrowCount);
 			return CVoid.VOID;
 		}
@@ -936,6 +938,68 @@ public class Functions {
 
 		public String docs() {
 			return "int {[playerName], count} Sets the player's body arrow count.";
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+	}
+
+	@api
+	public static class pswing_hand extends AbstractFunction {
+
+		public String getName() {
+			return "pswing_hand";
+		}
+
+		public String docs() {
+			return "int {[playerName], [hand]} Swing the player's hand in an attack animation. The hand parameter can"
+					+ " be either main_hand (default) or off_hand.";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{0, 1, 2};
+		}
+
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			MCPlayer p;
+			EnumHand hand = EnumHand.MAIN_HAND;
+			if(args.length == 2){
+				p = Static.GetPlayer(args[0].val(), t);
+				try {
+					hand = EnumHand.valueOf(args[1].val().toUpperCase());
+				} catch(IllegalArgumentException ex) {
+					throw new CREFormatException("Expected main_hand or off_hand but got \"" + args[1].val() + "\".", t);
+				}
+			} else {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+				if(args.length == 1) {
+					try {
+						hand = EnumHand.valueOf(args[0].val().toUpperCase());
+					} catch(IllegalArgumentException ex) {
+						throw new CREFormatException("Expected main_hand or off_hand but got \"" + args[0].val() + "\".", t);
+					}
+				}
+			}
+			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+			int h = hand.equals(EnumHand.MAIN_HAND) ? 0 : 3;
+			player.playerConnection.sendPacket(new PacketPlayOutAnimation(player, h)); // send to player
+			player.a(hand); // send to everyone else
+			return CVoid.VOID;
+		}
+
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CREFormatException.class};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
 		}
 
 		public Version since() {

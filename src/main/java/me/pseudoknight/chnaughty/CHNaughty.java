@@ -9,7 +9,7 @@ import com.laytonsmith.core.extensions.MSExtension;
 public class CHNaughty extends AbstractExtension {
     
     public Version getVersion() {
-        return new SimpleVersion(3,6,0);
+        return new SimpleVersion(3,7,0);
     }
 
     @Override
