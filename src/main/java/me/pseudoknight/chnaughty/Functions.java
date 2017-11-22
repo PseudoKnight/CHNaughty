@@ -923,7 +923,6 @@ public class Functions {
 				arrowCount = Static.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.playerConnection.sendPacket(new PacketPlayOutAnimation(player, 0));
 			player.setArrowCount(arrowCount);
 			return CVoid.VOID;
 		}
@@ -979,7 +978,7 @@ public class Functions {
 					try {
 						hand = EnumHand.valueOf(args[0].val().toUpperCase());
 					} catch(IllegalArgumentException ex) {
-						throw new CREFormatException("Expected main_hand or off_hand but got \"" + args[0].val() + "\".", t);
+						p = Static.GetPlayer(args[0].val(), t);
 					}
 				}
 			}
