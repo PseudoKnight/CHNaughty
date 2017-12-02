@@ -954,7 +954,9 @@ public class Functions {
 
 		public String docs() {
 			return "void {[playerName], [hand]} Swing the player's hand in an attack animation. The hand parameter can"
-					+ " be either main_hand (default) or off_hand.";
+					+ " be either main_hand (default) or off_hand. Note that this also triggers a player_interact event"
+					+ " when the player is not hitting a block. The event will always have the action \"left_click_air\""
+					+ " and the hand \"main_hand\".";
 		}
 
 		public Integer[] numArgs() {
@@ -985,7 +987,6 @@ public class Functions {
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
 			int h = hand.equals(EnumHand.MAIN_HAND) ? 0 : 3;
 			player.playerConnection.sendPacket(new PacketPlayOutAnimation(player, h)); // send to player
-			player.a(hand); // send to everyone else
 			return CVoid.VOID;
 		}
 
