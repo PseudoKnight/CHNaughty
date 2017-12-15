@@ -2,6 +2,10 @@
 
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
+## Virtual Book
+### open_book{[playerName], pages} 
+Sends a virtual book to a player. Accepts an array of pages. All pages must be either raw JSON or strings. If the JSON is not formatted correctly, it will fall back to string output.
+
 ## Relative/Smooth Teleports
 ### relative_teleport([playerName], relativeLocation)
 Sets the player location relative to where they are on their client. This can be used for smooth teleportation. The location is not an absolute world location. X would be how many meters along the x coordinate the location is from the player's current location.
