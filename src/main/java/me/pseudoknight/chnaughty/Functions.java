@@ -16,6 +16,7 @@ import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CDouble;
 import com.laytonsmith.core.constructs.CInt;
+import com.laytonsmith.core.constructs.CNull;
 import com.laytonsmith.core.constructs.CString;
 import com.laytonsmith.core.constructs.CVoid;
 import com.laytonsmith.core.constructs.Construct;
@@ -26,6 +27,8 @@ import com.laytonsmith.core.exceptions.CRE.CRECastException;
 import com.laytonsmith.core.exceptions.CRE.CREException;
 import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
+import com.laytonsmith.core.exceptions.CRE.CREIndexOverflowException;
+import com.laytonsmith.core.exceptions.CRE.CREInvalidWorldException;
 import com.laytonsmith.core.exceptions.CRE.CRELengthException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
@@ -37,6 +40,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.server.v1_12_R1.AttributeInstance;
 import net.minecraft.server.v1_12_R1.AxisAlignedBB;
 import net.minecraft.server.v1_12_R1.BlockPosition;
+import net.minecraft.server.v1_12_R1.BlockSign;
 import net.minecraft.server.v1_12_R1.BlockStateBoolean;
 import net.minecraft.server.v1_12_R1.ChatMessageType;
 import net.minecraft.server.v1_12_R1.Entity;
@@ -56,9 +60,18 @@ import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
+import net.minecraft.server.v1_12_R1.TileEntity;
+import net.minecraft.server.v1_12_R1.TileEntitySign;
 import net.minecraft.server.v1_12_R1.Vec3D;
+import net.minecraft.server.v1_12_R1.World;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.block.CraftSign;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMetaBook;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
@@ -887,6 +900,91 @@ public class Functions {
 			return "void {[playerName], pages} Sends a virtual book to a player. Accepts an array of pages."
 					+ " All pages must be either raw JSON or strings. If the JSON is not formatted correctly, "
 					+ " it will fall back to string output.";
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+	}
+	@api
+	public static class open_sign extends AbstractFunction {
+
+		public String getName() {
+			return "open_sign";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{1, 2, 3};
+		}
+
+		public String docs() {
+			return "void {[player], location, [lines]} Opens a sign editor for the given sign location. Lines must"
+					+ " be an array with 4 values or null. If not provided, it'll use the lines from the given sign.";
+		}
+
+		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+			MCPlayer player;
+			Construct clocation;
+			Construct clines = null;
+			if(args.length == 3) {
+				player = Static.GetPlayer(args[0], t);
+				clocation = args[1];
+				clines = args[2];
+			} else if(args.length == 2) {
+				if(args[0] instanceof CArray) {
+					player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
+					Static.AssertPlayerNonNull(player, t);
+					clocation = args[0];
+					clines = args[1];
+				} else {
+					player = Static.GetPlayer(args[0], t);
+					clocation = args[1];
+				}
+			} else {
+				player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(player, t);
+				clocation = args[0];
+			}
+
+			MCLocation signLoc = ObjectGenerator.GetGenerator().location(clocation, null, t);
+
+			if(clines != null) {
+				String[] lines = new String[4];
+				if(!(clines instanceof CNull)) {
+					if (!(clines instanceof CArray)) {
+						throw new CREFormatException("Expected an array.", t);
+					}
+					CArray array = (CArray) clines;
+					for (int i = 0; i < 4; i++) {
+						lines[i] = array.get(i, t).val();
+					}
+				}
+				player.sendSignTextChange(signLoc, lines);
+			}
+
+			World w = ((CraftWorld) signLoc.getWorld().getHandle()).getHandle();
+			TileEntity te = w.getTileEntity(new BlockPosition(signLoc.getBlockX(), signLoc.getBlockY(), signLoc.getBlockZ()));
+			if(!(te instanceof TileEntitySign)) {
+				throw new CRECastException("This location is not a sign.", t);
+			}
+			TileEntitySign sign = (TileEntitySign) te;
+			sign.isEditable = true;
+			((CraftPlayer) player.getHandle()).getHandle().openSign(sign);
+			return CVoid.VOID;
+		}
+
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CREFormatException.class,
+					CREInvalidWorldException.class, CRECastException.class, CREIndexOverflowException.class};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
 		}
 
 		public Version since() {
