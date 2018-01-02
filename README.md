@@ -2,6 +2,10 @@
 
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
+## Sign Editor
+### open_sign{[player], signLocation, [lines]}
+Opens a sign editor for the given sign location. Lines must be an array with 4 values or null. If not provided, it'll use the lines from the given sign.
+
 ## Virtual Book
 ### open_book{[playerName], pages} 
 Sends a virtual book to a player. Accepts an array of pages. All pages must be either raw JSON or strings. If the JSON is not formatted correctly, it will fall back to string output.
