@@ -14,6 +14,10 @@ Sends a virtual book to a player. Accepts an array of pages. All pages must be e
 ### relative_teleport([playerName], relativeLocation)
 Sets the player location relative to where they are on their client. This can be used for smooth teleportation. The location is not an absolute world location. X would be how many meters along the x coordinate the location is from the player's current location.
 
+## Entity Rotation
+### set_entity_rotation(entityID, yaw, [pitch])
+Sets an entity's yaw and pitch without teleporting or ejecting.
+
 ## Forced Sleeping
 ### psleep([playerName], bedLocation)
 Sets the player sleeping at the specified bed location. Throws an exception when unsuccessful. The following conditions must be met for a player to sleep: the location must be a bed, the player must be near it, it must be night and there must not be hostile mobs nearby.
@@ -25,6 +29,10 @@ Returns the player's ping to the server. This data is stored on the server, so t
 ## Player Animation
 ### pswing_hand([playerName], [hand])
 Swing the player's hand in an attack animation. The hand parameter can be either main_hand (default) or off_hand.
+
+## Sky Colors
+### set_psky([playerName], number, number)
+Sends a packet to the player to change their sky color.
 
 ## Player Arrows
 ### set_parrow_count([playerName], count)

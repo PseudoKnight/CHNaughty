@@ -23,6 +23,7 @@ import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
+import com.laytonsmith.core.exceptions.CRE.CREBadEntityException;
 import com.laytonsmith.core.exceptions.CRE.CRECastException;
 import com.laytonsmith.core.exceptions.CRE.CREException;
 import com.laytonsmith.core.exceptions.CRE.CREFormatException;
@@ -40,7 +41,6 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.server.v1_12_R1.AttributeInstance;
 import net.minecraft.server.v1_12_R1.AxisAlignedBB;
 import net.minecraft.server.v1_12_R1.BlockPosition;
-import net.minecraft.server.v1_12_R1.BlockSign;
 import net.minecraft.server.v1_12_R1.BlockStateBoolean;
 import net.minecraft.server.v1_12_R1.ChatMessageType;
 import net.minecraft.server.v1_12_R1.Entity;
@@ -56,6 +56,7 @@ import net.minecraft.server.v1_12_R1.MovingObjectPosition;
 import net.minecraft.server.v1_12_R1.PacketDataSerializer;
 import net.minecraft.server.v1_12_R1.PacketPlayOutAnimation;
 import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_12_R1.PacketPlayOutGameStateChange;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
@@ -65,13 +66,9 @@ import net.minecraft.server.v1_12_R1.TileEntitySign;
 import net.minecraft.server.v1_12_R1.Vec3D;
 import net.minecraft.server.v1_12_R1.World;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_12_R1.block.CraftSign;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMetaBook;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
@@ -86,11 +83,77 @@ import java.util.EnumSet;
 import java.util.List;
 
 public class Functions {
-    public static String docs() {
-        return "Functions that lack a Bukkit or Spigot API interface.";
-    }
+	public static String docs() {
+		return "Functions that lack a Bukkit or Spigot API interface.";
+	}
 
-    @api
+	@api
+	public static class set_entity_rotation extends AbstractFunction {
+
+		@Override
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREBadEntityException.class, CRELengthException.class, CRECastException.class,
+					CREIllegalArgumentException.class};
+		}
+
+		@Override
+		public boolean isRestricted() {
+			return true;
+		}
+
+		@Override
+		public Boolean runAsync() {
+			return false;
+		}
+
+		@Override
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
+
+			double yaw = Static.getDouble(args[1], t);
+			yaw %= 360.0;
+			if(yaw >= 180.0) {
+				yaw -= 360.0;
+			} else if(yaw < -180.0) {
+				yaw += 360.0;
+			}
+
+			if(args.length == 3) {
+				double pitch = Static.getDouble(args[2], t);
+				if(pitch > 90.0) {
+					pitch = 90.0;
+				} else if(pitch < -90.0) {
+					pitch = -90.0;
+				}
+				entity.pitch = (float) pitch;
+			}
+
+			entity.yaw = (float) yaw;
+			return CVoid.VOID;
+		}
+
+		@Override
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+		@Override
+		public String getName() {
+			return "set_entity_rotation";
+		}
+
+		@Override
+		public Integer[] numArgs() {
+			return new Integer[]{2, 3};
+		}
+
+		@Override
+		public String docs() {
+			return "void {entity, yaw, [pitch]} Sets an entity's yaw and pitch without teleporting or ejecting.";
+		}
+	}
+
+	@api
 	public static class relative_teleport extends AbstractFunction {
 
 		@Override
@@ -234,7 +297,7 @@ public class Functions {
 
 	}
 
-    @api
+	@api
 	public static class ray_trace extends AbstractFunction {
 
 		@Override
@@ -406,22 +469,22 @@ public class Functions {
 
 	}
  
-    @api
-    public static class action_msg extends AbstractFunction {
+	@api
+	public static class action_msg extends AbstractFunction {
 
-        public Class<? extends CREThrowable>[] thrown() {
-            return new Class[]{CREPlayerOfflineException.class};
-        }
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class};
+		}
 
-        public boolean isRestricted() {
-            return true;
-        }
+		public boolean isRestricted() {
+			return true;
+		}
 
-        public Boolean runAsync() {
-            return false; 
-        }
+		public Boolean runAsync() {
+			return false;
+		}
 
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
 			String name = "";
 			String message;
 			if(args.length == 2) {
@@ -441,25 +504,25 @@ public class Functions {
 			IChatBaseComponent actionMessage = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + message + "\"}");
 			player.getHandle().playerConnection.sendPacket(new PacketPlayOutChat(actionMessage, ChatMessageType.GAME_INFO));
 			return CVoid.VOID;
-        }
+		}
 
-        public String getName() {
-            return "action_msg";
-        }
+		public String getName() {
+			return "action_msg";
+		}
 
-        public Integer[] numArgs() {
-            return new Integer[]{1, 2};
-        }
+		public Integer[] numArgs() {
+			return new Integer[]{1, 2};
+		}
 
-        public String docs() {
-            return "void {[playerName], message} Sends a message to the action bar.";
-        }
+		public String docs() {
+			return "void {[playerName], message} Sends a message to the action bar.";
+		}
 
-        public Version since() {
-            return CHVersion.V3_3_1;
-        }
-        
-    }
+		public Version since() {
+			return CHVersion.V3_3_1;
+		}
+
+	}
 
 	@api
 	public static class title_msg extends AbstractFunction {
@@ -677,7 +740,7 @@ public class Functions {
 		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
 			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
 			AttributeInstance attribute;
-			switch (args[1].val().toLowerCase()) {
+			switch(args[1].val().toLowerCase()) {
 				case "attackdamage":
 					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE);
 					break;
@@ -863,7 +926,7 @@ public class Functions {
 			CArray pageArray = (CArray) pages;
 			try {
 				List<IChatBaseComponent> pageList = new ArrayList<>();
-				for (int i = 0; i < pageArray.size(); i++) {
+				for(int i = 0; i < pageArray.size(); i++) {
 					String json = pageArray.get(i, t).val();
 					IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(json);
 					pageList.add(component);
@@ -871,7 +934,7 @@ public class Functions {
 				((CraftMetaBook) bookmeta).pages = pageList;
 			} catch(JsonSyntaxException ex) {
 				List<String> pageList = new ArrayList<>();
-				for (int i = 0; i < pageArray.size(); i++) {
+				for(int i = 0; i < pageArray.size(); i++) {
 					pageList.add(pageArray.get(i, t).val());
 				}
 				bookmeta.setPages(pageList);
@@ -952,11 +1015,11 @@ public class Functions {
 			if(clines != null) {
 				String[] lines = new String[4];
 				if(!(clines instanceof CNull)) {
-					if (!(clines instanceof CArray)) {
+					if(!(clines instanceof CArray)) {
 						throw new CREFormatException("Expected an array.", t);
 					}
 					CArray array = (CArray) clines;
-					for (int i = 0; i < 4; i++) {
+					for(int i = 0; i < 4; i++) {
 						lines[i] = array.get(i, t).val();
 					}
 				}
@@ -1090,6 +1153,60 @@ public class Functions {
 
 		public Class<? extends CREThrowable>[] thrown() {
 			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CREFormatException.class};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
+		}
+
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+	}
+
+	@api
+	public static class set_psky extends AbstractFunction {
+
+		public String getName() {
+			return "set_psky";
+		}
+
+		public String docs() {
+			return "void {[playerName], number, number} Sends a packet to the player to change their sky color.";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{2, 3};
+		}
+
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			MCPlayer p;
+			float a;
+			float b;
+			if(args.length == 3){
+				p = Static.GetPlayer(args[0].val(), t);
+				a = Static.getDouble32(args[1], t);
+				b = Static.getDouble32(args[2], t);
+			} else {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+				a = Static.getDouble32(args[0], t);
+				b = Static.getDouble32(args[1], t);
+			}
+			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+			player.playerConnection.sendPacket(new PacketPlayOutGameStateChange(7, a));
+			player.playerConnection.sendPacket(new PacketPlayOutGameStateChange(8, b));
+			return CVoid.VOID;
+		}
+
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CRERangeException.class,
+					CRECastException.class};
 		}
 
 		public boolean isRestricted() {

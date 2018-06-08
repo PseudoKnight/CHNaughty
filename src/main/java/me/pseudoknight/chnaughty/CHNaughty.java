@@ -7,19 +7,19 @@ import com.laytonsmith.core.extensions.MSExtension;
 
 @MSExtension("CHNaughty")
 public class CHNaughty extends AbstractExtension {
-    
-    public Version getVersion() {
-        return new SimpleVersion(3,8,0);
-    }
 
-    @Override
-    public void onStartup() {
-        System.out.println("CHNaughty " + getVersion() + " loaded.");
-    }
-    
-    @Override
-    public void onShutdown() {
-        System.out.println("CHNaughty " + getVersion() + " unloaded.");
-    }
+	public Version getVersion() {
+		return new SimpleVersion(3,9,0);
+	}
+
+	@Override
+	public void onStartup() {
+		System.out.println("CHNaughty " + getVersion() + " loaded.");
+	}
+
+	@Override
+	public void onShutdown() {
+		System.out.println("CHNaughty " + getVersion() + " unloaded.");
+	}
 
 }
