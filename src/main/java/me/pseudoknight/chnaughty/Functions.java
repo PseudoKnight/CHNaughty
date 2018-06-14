@@ -1222,4 +1222,53 @@ public class Functions {
 		}
 
 	}
+
+	@api
+	public static class set_entity_size extends AbstractFunction {
+
+		@Override
+		public String getName() {
+			return "set_entity_size";
+		}
+
+		@Override
+		public Integer[] numArgs() {
+			return new Integer[]{3};
+		}
+
+		@Override
+		public String docs() {
+			return "void {entity, width, height} Sets an entity's collision box width and height";
+		}
+
+		@Override
+		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
+			float width = Static.getDouble32(args[1], t);
+			float height = Static.getDouble32(args[2], t);
+			entity.setSize(width, height);
+			return CVoid.VOID;
+		}
+
+		@Override
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREBadEntityException.class, CRELengthException.class, CRECastException.class,
+					CREIllegalArgumentException.class};
+		}
+
+		@Override
+		public Version since() {
+			return CHVersion.V3_3_2;
+		}
+
+		@Override
+		public boolean isRestricted() {
+			return true;
+		}
+
+		@Override
+		public Boolean runAsync() {
+			return false;
+		}
+	}
 }
