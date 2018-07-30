@@ -38,43 +38,44 @@ import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import io.netty.buffer.Unpooled;
-import net.minecraft.server.v1_12_R1.AttributeInstance;
-import net.minecraft.server.v1_12_R1.AxisAlignedBB;
-import net.minecraft.server.v1_12_R1.BlockPosition;
-import net.minecraft.server.v1_12_R1.BlockStateBoolean;
-import net.minecraft.server.v1_12_R1.ChatMessageType;
-import net.minecraft.server.v1_12_R1.Entity;
-import net.minecraft.server.v1_12_R1.EntityHuman;
-import net.minecraft.server.v1_12_R1.EntityLiving;
-import net.minecraft.server.v1_12_R1.EntityPlayer;
-import net.minecraft.server.v1_12_R1.EnumHand;
-import net.minecraft.server.v1_12_R1.GenericAttributes;
-import net.minecraft.server.v1_12_R1.IBlockData;
-import net.minecraft.server.v1_12_R1.IChatBaseComponent;
-import net.minecraft.server.v1_12_R1.MinecraftServer;
-import net.minecraft.server.v1_12_R1.MovingObjectPosition;
-import net.minecraft.server.v1_12_R1.PacketDataSerializer;
-import net.minecraft.server.v1_12_R1.PacketPlayOutAnimation;
-import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_12_R1.PacketPlayOutGameStateChange;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
-import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_12_R1.PlayerConnection;
-import net.minecraft.server.v1_12_R1.TileEntity;
-import net.minecraft.server.v1_12_R1.TileEntitySign;
-import net.minecraft.server.v1_12_R1.Vec3D;
-import net.minecraft.server.v1_12_R1.World;
+import net.minecraft.server.v1_13_R1.AttributeInstance;
+import net.minecraft.server.v1_13_R1.AxisAlignedBB;
+import net.minecraft.server.v1_13_R1.BlockPosition;
+import net.minecraft.server.v1_13_R1.BlockStateBoolean;
+import net.minecraft.server.v1_13_R1.ChatMessageType;
+import net.minecraft.server.v1_13_R1.Entity;
+import net.minecraft.server.v1_13_R1.EntityHuman;
+import net.minecraft.server.v1_13_R1.EntityLiving;
+import net.minecraft.server.v1_13_R1.EntityPlayer;
+import net.minecraft.server.v1_13_R1.EnumHand;
+import net.minecraft.server.v1_13_R1.FluidCollisionOption;
+import net.minecraft.server.v1_13_R1.GenericAttributes;
+import net.minecraft.server.v1_13_R1.IBlockData;
+import net.minecraft.server.v1_13_R1.IChatBaseComponent;
+import net.minecraft.server.v1_13_R1.MovingObjectPosition;
+import net.minecraft.server.v1_13_R1.PacketDataSerializer;
+import net.minecraft.server.v1_13_R1.PacketPlayOutAnimation;
+import net.minecraft.server.v1_13_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_13_R1.PacketPlayOutGameStateChange;
+import net.minecraft.server.v1_13_R1.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_13_R1.PacketPlayOutPosition;
+import net.minecraft.server.v1_13_R1.PacketPlayOutTitle;
+import net.minecraft.server.v1_13_R1.PlayerConnection;
+import net.minecraft.server.v1_13_R1.TileEntity;
+import net.minecraft.server.v1_13_R1.TileEntitySign;
+import net.minecraft.server.v1_13_R1.Vec3D;
+import net.minecraft.server.v1_13_R1.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMetaBook;
+import org.bukkit.craftbukkit.v1_13_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_13_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftMetaBook;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_13_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_13_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
 import java.io.IOException;
@@ -351,7 +352,7 @@ public class Functions {
 			Vec3D v;
 			if(clocation == null) {
 				v3d1 = new Vec3D(player.locX, player.locY + p.getEyeHeight(), player.locZ);
-				v = player.aJ();
+				v = player.aN();
 			} else {
 				MCLocation l = ObjectGenerator.GetGenerator().location(clocation, p.getWorld(), t);
 				v3d1 = new Vec3D(l.getX(), l.getY(), l.getZ());
@@ -361,8 +362,8 @@ public class Functions {
 			}
 			Vec3D v3d2 = v3d1.add(v.x * range, v.y * range, v.z * range);
 
-			net.minecraft.server.v1_12_R1.World world = player.getWorld();
-			MovingObjectPosition mop = world.rayTrace(v3d1, v3d2, false, true, false);
+			net.minecraft.server.v1_13_R1.World world = player.getWorld();
+			MovingObjectPosition mop = world.rayTrace(v3d1, v3d2, FluidCollisionOption.NEVER, true, false);
 			if(mop != null) {
 				v3d2 = mop.pos;
 				hitBlock = true;
@@ -696,7 +697,7 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-			double[] recentTps = MinecraftServer.getServer().recentTps;
+			double[] recentTps = ((CraftServer)Bukkit.getServer()).getServer().recentTps;
 			CArray tps = new CArray(t, 3);
 			for(double d : recentTps) {
 				tps.push(new CDouble(Math.min(Math.round(d * 100.0D) / 100.0D, 20.0D), t), t);
