@@ -371,17 +371,16 @@ public class Functions {
 
 			MCWorld w = new BukkitMCWorld(world.getWorld());
 			CArray entities = new CArray(t);
-			for(Entity entity : world.entityList) {
-				if(entity.isAlive() && !entity.equals(player)) {
-					AxisAlignedBB bb = entity.getBoundingBox();
-					MovingObjectPosition hit = bb.b(v3d1, v3d2);
-					if(hit != null){
-						CArray entityArray = CArray.GetAssociativeArray(t);
-						entityArray.set("uuid", new CString(entity.getUniqueID().toString(), t), t);
-						MCLocation l = StaticLayer.GetLocation(w, hit.pos.x, hit.pos.y, hit.pos.z);
-						entityArray.set("location", ObjectGenerator.GetGenerator().location(l, false), t);
-						entities.push(entityArray, t);
-					}
+			List<Entity> validTargets = world.a(EntityLiving.class, (entity) -> !entity.equals(player));
+			for(Entity entity : validTargets) {
+				AxisAlignedBB bb = entity.getBoundingBox();
+				MovingObjectPosition hit = bb.b(v3d1, v3d2);
+				if(hit != null){
+					CArray entityArray = CArray.GetAssociativeArray(t);
+					entityArray.set("uuid", new CString(entity.getUniqueID().toString(), t), t);
+					MCLocation l = StaticLayer.GetLocation(w, hit.pos.x, hit.pos.y, hit.pos.z);
+					entityArray.set("location", ObjectGenerator.GetGenerator().location(l, false), t);
+					entities.push(entityArray, t);
 				}
 			}
 
