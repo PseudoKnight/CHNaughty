@@ -2,6 +2,14 @@
 
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
+##Downloads
+[Latest - Spigot 1.13.1 - 1.13.2](https://letsbuild.net/jenkins/job/CHNaughty/lastSuccessfulBuild/artifact/target/)
+[Spigot 1.12.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.9.0)
+[Spigot 1.11.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.4.2)
+[Spigot 1.10.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.4.1)
+[Spigot 1.9.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.2.0)
+[Spigot 1.8.8](https://github.com/PseudoKnight/CHNaughty/releases/tag/v2.0.1)
+
 ## Sign Editor
 ### open_sign{[player], signLocation, [lines]}
 Opens a sign editor for the given sign location. Lines must be an array with 4 values or null. If not provided, it'll use the lines from the given sign.
@@ -13,6 +21,7 @@ Sends a virtual book to a player. Accepts an array of pages. All pages must be e
 ## Relative/Smooth Teleports
 ### relative_teleport([playerName], relativeLocation)
 Sets the player location relative to where they are on their client. This can be used for smooth teleportation. The location is not an absolute world location. X would be how many meters along the x coordinate the location is from the player's current location.
+NOTE: This should work as a smooth teleport in 1.14 again.
 
 ## Entity Rotation
 ### set_entity_rotation(entityID, yaw, [pitch])
