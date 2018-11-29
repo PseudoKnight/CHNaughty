@@ -9,7 +9,7 @@ import com.laytonsmith.abstraction.MCWorld;
 import com.laytonsmith.abstraction.StaticLayer;
 import com.laytonsmith.abstraction.bukkit.BukkitMCWorld;
 import com.laytonsmith.annotations.api;
-import com.laytonsmith.core.CHVersion;
+import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.ObjectGenerator;
 import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.CArray;
@@ -37,6 +37,7 @@ import com.laytonsmith.core.exceptions.CRE.CRERangeException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
+import com.laytonsmith.core.natives.interfaces.Mixed;
 import io.netty.buffer.Unpooled;
 import net.minecraft.server.v1_13_R2.AttributeInstance;
 import net.minecraft.server.v1_13_R2.AxisAlignedBB;
@@ -108,7 +109,7 @@ public class Functions {
 		}
 
 		@Override
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 
 			double yaw = Static.getDouble(args[1], t);
@@ -135,7 +136,7 @@ public class Functions {
 
 		@Override
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 		@Override
@@ -174,7 +175,7 @@ public class Functions {
 		}
 
 		@Override
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			String name = "";
 			if(args.length == 3 || args.length == 6) {
 				name = args[0].val();
@@ -206,7 +207,7 @@ public class Functions {
 
 		@Override
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 		@Override
@@ -241,7 +242,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
 			MCLocation loc;
 			if(args.length == 2){
@@ -293,7 +294,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 	}
@@ -318,10 +319,10 @@ public class Functions {
 		}
 
 		@Override
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
 			double range = 128;
-			Construct clocation = null;
+			Mixed clocation = null;
 			if(args.length == 0) {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
@@ -399,8 +400,8 @@ public class Functions {
 		}
 
 		@Override
-		public CHVersion since() {
-			return CHVersion.V3_3_2;
+		public MSVersion since() {
+			return MSVersion.V3_3_2;
 		}
 
 		@Override
@@ -439,7 +440,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
 			if(args.length == 1){
 				p = Static.GetPlayer(args[0].val(), t);
@@ -464,7 +465,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 	}
@@ -484,7 +485,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			String name = "";
 			String message;
 			if(args.length == 2) {
@@ -519,7 +520,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_1;
+			return MSVersion.V3_3_1;
 		}
 
 	}
@@ -539,7 +540,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			String name = "";
 			int offset = 0;
 			if(args.length == 3 || args.length == 6) {
@@ -566,13 +567,13 @@ public class Functions {
 				connection.sendPacket(new PacketPlayOutTitle(fadein, stay, fadeout));
 			}
 
-			if(args[1 + offset].nval() != null) {
+			if(Construct.nval(args[1 + offset]) != null) {
 				IChatBaseComponent subtitle = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + args[1 + offset].val() + "\"}");
 				connection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, subtitle));
 			}
 
 			String title = "";
-			if(args[offset].nval() != null) {
+			if(Construct.nval(args[offset]) != null) {
 				title = args[offset].val();
 			}
 			IChatBaseComponent icbc = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + title + "\"}");
@@ -596,7 +597,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_1;
+			return MSVersion.V3_3_1;
 		}
 
 	}
@@ -616,7 +617,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			String name = "";
 			int offset = 0;
 			if(args.length == 3) {
@@ -636,8 +637,8 @@ public class Functions {
 
 			PlayerConnection connection = player.getHandle().playerConnection;
 
-			String header = args[offset].nval();
-			String footer = args[1 + offset].nval();
+			String header = Construct.nval(args[offset]);
+			String footer = Construct.nval(args[1 + offset]);
 
 			if(header == null) {
 				header = "";
@@ -675,7 +676,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_1;
+			return MSVersion.V3_3_1;
 		}
 
 	}
@@ -695,7 +696,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			double[] recentTps = ((CraftServer)Bukkit.getServer()).getServer().recentTps;
 			CArray tps = new CArray(t, 3);
 			for(double d : recentTps) {
@@ -717,7 +718,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_1;
+			return MSVersion.V3_3_1;
 		}
 
 	}
@@ -737,7 +738,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
 			AttributeInstance attribute;
 			switch(args[1].val().toLowerCase()) {
@@ -798,7 +799,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_1;
+			return MSVersion.V3_3_1;
 		}
 
 	}
@@ -818,7 +819,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
 			AttributeInstance attribute;
 			switch(args[1].val().toLowerCase()){
@@ -879,7 +880,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_1;
+			return MSVersion.V3_3_1;
 		}
 
 	}
@@ -899,9 +900,9 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			String name = "";
-			Construct pages;
+			Mixed pages;
 			if(args.length == 2) {
 				name = args[0].val();
 				pages = args[1];
@@ -966,7 +967,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 	}
@@ -986,10 +987,10 @@ public class Functions {
 					+ " be an array with 4 values or null. If not provided, it'll use the lines from the given sign.";
 		}
 
-		public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer player;
-			Construct clocation;
-			Construct clines = null;
+			Mixed clocation;
+			Mixed clines = null;
 			if(args.length == 3) {
 				player = Static.GetPlayer(args[0], t);
 				clocation = args[1];
@@ -1051,7 +1052,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 	}
@@ -1072,7 +1073,7 @@ public class Functions {
 			return false;
 		}
 
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
 			int arrowCount;
 			if(args.length == 2){
@@ -1101,7 +1102,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 	}
@@ -1124,7 +1125,7 @@ public class Functions {
 			return new Integer[]{0, 1, 2};
 		}
 
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
 			EnumHand hand = EnumHand.MAIN_HAND;
 			if(args.length == 2){
@@ -1164,7 +1165,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 	}
@@ -1184,7 +1185,7 @@ public class Functions {
 			return new Integer[]{2, 3};
 		}
 
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
 			float a;
 			float b;
@@ -1218,7 +1219,7 @@ public class Functions {
 		}
 
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 	}
@@ -1242,7 +1243,7 @@ public class Functions {
 		}
 
 		@Override
-		public Construct exec(Target t, Environment env, Construct... args) throws ConfigRuntimeException {
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 			float width = Static.getDouble32(args[1], t);
 			float height = Static.getDouble32(args[2], t);
@@ -1258,7 +1259,7 @@ public class Functions {
 
 		@Override
 		public Version since() {
-			return CHVersion.V3_3_2;
+			return MSVersion.V3_3_2;
 		}
 
 		@Override
