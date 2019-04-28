@@ -5,9 +5,7 @@ import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.abstraction.MCCommandSender;
 import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
-import com.laytonsmith.abstraction.MCWorld;
-import com.laytonsmith.abstraction.StaticLayer;
-import com.laytonsmith.abstraction.bukkit.BukkitMCWorld;
+import com.laytonsmith.abstraction.bukkit.BukkitMCLocation;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.ObjectGenerator;
@@ -38,49 +36,55 @@ import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
+import com.mojang.datafixers.util.Either;
 import io.netty.buffer.Unpooled;
-import net.minecraft.server.v1_13_R2.AttributeInstance;
-import net.minecraft.server.v1_13_R2.AxisAlignedBB;
-import net.minecraft.server.v1_13_R2.BlockPosition;
-import net.minecraft.server.v1_13_R2.BlockStateBoolean;
-import net.minecraft.server.v1_13_R2.ChatMessageType;
-import net.minecraft.server.v1_13_R2.Entity;
-import net.minecraft.server.v1_13_R2.EntityHuman;
-import net.minecraft.server.v1_13_R2.EntityLiving;
-import net.minecraft.server.v1_13_R2.EntityPlayer;
-import net.minecraft.server.v1_13_R2.EnumHand;
-import net.minecraft.server.v1_13_R2.FluidCollisionOption;
-import net.minecraft.server.v1_13_R2.GenericAttributes;
-import net.minecraft.server.v1_13_R2.IBlockData;
-import net.minecraft.server.v1_13_R2.IChatBaseComponent;
-import net.minecraft.server.v1_13_R2.MovingObjectPosition;
-import net.minecraft.server.v1_13_R2.PacketDataSerializer;
-import net.minecraft.server.v1_13_R2.PacketPlayOutAnimation;
-import net.minecraft.server.v1_13_R2.PacketPlayOutChat;
-import net.minecraft.server.v1_13_R2.PacketPlayOutGameStateChange;
-import net.minecraft.server.v1_13_R2.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_13_R2.PacketPlayOutPosition;
-import net.minecraft.server.v1_13_R2.PacketPlayOutTitle;
-import net.minecraft.server.v1_13_R2.PlayerConnection;
-import net.minecraft.server.v1_13_R2.TileEntity;
-import net.minecraft.server.v1_13_R2.TileEntitySign;
-import net.minecraft.server.v1_13_R2.Vec3D;
-import net.minecraft.server.v1_13_R2.World;
+import net.minecraft.server.v1_14_R1.AttributeInstance;
+import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.BlockStateBoolean;
+import net.minecraft.server.v1_14_R1.ChatMessageType;
+import net.minecraft.server.v1_14_R1.Entity;
+import net.minecraft.server.v1_14_R1.EntityHuman;
+import net.minecraft.server.v1_14_R1.EntityLiving;
+import net.minecraft.server.v1_14_R1.EntityPlayer;
+import net.minecraft.server.v1_14_R1.EnumHand;
+import net.minecraft.server.v1_14_R1.Unit;
+import net.minecraft.server.v1_14_R1.GenericAttributes;
+import net.minecraft.server.v1_14_R1.IBlockData;
+import net.minecraft.server.v1_14_R1.IChatBaseComponent;
+import net.minecraft.server.v1_14_R1.PacketDataSerializer;
+import net.minecraft.server.v1_14_R1.PacketPlayOutAnimation;
+import net.minecraft.server.v1_14_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_14_R1.PacketPlayOutGameStateChange;
+import net.minecraft.server.v1_14_R1.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_14_R1.PacketPlayOutPosition;
+import net.minecraft.server.v1_14_R1.PacketPlayOutTitle;
+import net.minecraft.server.v1_14_R1.PlayerConnection;
+import net.minecraft.server.v1_14_R1.TileEntity;
+import net.minecraft.server.v1_14_R1.TileEntitySign;
+import net.minecraft.server.v1_14_R1.World;
 import org.bukkit.Bukkit;
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_13_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftMetaBook;
+import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftMetaBook;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -255,28 +259,32 @@ public class Functions {
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
 			BlockPosition pos = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-			EntityHuman.EnumBedResult result;
+			Either<EntityHuman.EnumBedResult, Unit> result;
 			try {
-				result = player.a(pos);
+				result = player.sleep(pos);
 			} catch(IllegalArgumentException ex) {
 				throw new CREException("That is not a bed.", t);
 			}
-			switch(result) {
-				case NOT_POSSIBLE_HERE:
-					throw new CREException("It's not possible to sleep here.", t);
-				case NOT_POSSIBLE_NOW:
-					throw new CREException("It's not possible to sleep now.", t);
-				case TOO_FAR_AWAY:
-					throw new CREException("That bed is too far away.", t);
-				case OTHER_PROBLEM:
-					throw new CREException("Can't sleep for some reason.", t);
-				case NOT_SAFE:
-					throw new CREException("It's not safe to sleep.", t);
-				case OK:
-					IBlockData blockData = player.getWorld().getType(pos);
-					blockData = blockData.set(BlockStateBoolean.of("occupied"), true);
-					player.getWorld().setTypeAndData(pos, blockData, 4);
-			}
+			result.ifRight((unit) -> {
+				IBlockData blockData = player.getWorld().getType(pos);
+				blockData = blockData.set(BlockStateBoolean.of("occupied"), true);
+				player.getWorld().setTypeAndData(pos, blockData, 4);
+			}).ifLeft((bedresult) -> {
+				switch(bedresult) {
+					case NOT_POSSIBLE_HERE:
+						throw new CREException("It's not possible to sleep here.", t);
+					case NOT_POSSIBLE_NOW:
+						throw new CREException("It's not possible to sleep now.", t);
+					case TOO_FAR_AWAY:
+						throw new CREException("That bed is too far away.", t);
+					case OBSTRUCTED:
+						throw new CREException("That bed is obstructed.", t);
+					case OTHER_PROBLEM:
+						throw new CREException("Can't sleep for some reason.", t);
+					case NOT_SAFE:
+						throw new CREException("It's not safe to sleep.", t);
+				}
+			});
 			return CVoid.VOID;
 		}
 
@@ -320,82 +328,69 @@ public class Functions {
 
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
-			MCPlayer p;
+			Player p;
 			double range = 128;
-			Mixed clocation = null;
+			Location loc;
+			
 			if(args.length == 0) {
-				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
-				Static.AssertPlayerNonNull(p, t);
+				p = (Player) env.getEnv(CommandHelperEnvironment.class).GetPlayer().getHandle();
+				loc = p.getEyeLocation();
 			} else if(args.length == 1) {
-				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
-				Static.AssertPlayerNonNull(p, t);
+				p = (Player) env.getEnv(CommandHelperEnvironment.class).GetPlayer().getHandle();
 				range = Static.getDouble32(args[0], t);
+				loc = p.getEyeLocation();
 			} else if(args.length == 2) {
 				if(args[0] instanceof CArray) {
-					p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
-					Static.AssertPlayerNonNull(p, t);
-					clocation = args[0];
+					p = (Player) env.getEnv(CommandHelperEnvironment.class).GetPlayer().getHandle();
+					loc = (Location) ObjectGenerator.GetGenerator().location(args[0], null, t).getHandle();
 				} else {
-					p = Static.GetPlayer(args[0].val(), t);
+					p = (Player) Static.GetPlayer(args[0].val(), t).getHandle();
+					loc = p.getEyeLocation();
 				}
 				range = Static.getDouble32(args[1], t);
 			} else {
-				p = Static.GetPlayer(args[0].val(), t);
-				clocation = args[1];
+				p = (Player) Static.GetPlayer(args[0].val(), t).getHandle();
+				loc = (Location) ObjectGenerator.GetGenerator().location(args[1], null, t).getHandle();
 				range = Static.getDouble32(args[2], t);
 			}
+			
+			double yaw = Math.toRadians(loc.getYaw() + 90);
+			double pitch = Math.toRadians(-loc.getPitch());
+			Vector dir = new Vector(Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch));
 
-			boolean hitBlock = false;
-
-			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-
-			Vec3D v3d1;
-			Vec3D v;
-			if(clocation == null) {
-				v3d1 = new Vec3D(player.locX, player.locY + p.getEyeHeight(), player.locZ);
-				v = player.aN();
+			RayTraceResult blockResult = p.getWorld().rayTraceBlocks(loc, dir, range, FluidCollisionMode.NEVER, true);
+			
+			Vector start = loc.toVector();
+			Vector end;
+			CArray hits = CArray.GetAssociativeArray(t);
+			if(blockResult != null) {
+				end = blockResult.getHitPosition();
+				hits.set("hitblock", CBoolean.TRUE, t);
 			} else {
-				MCLocation l = ObjectGenerator.GetGenerator().location(clocation, p.getWorld(), t);
-				v3d1 = new Vec3D(l.getX(), l.getY(), l.getZ());
-				double yaw = Math.toRadians(l.getYaw() + 90);
-				double pitch = Math.toRadians(-l.getPitch());
-				v = new Vec3D(Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch));
-			}
-			Vec3D v3d2 = v3d1.add(v.x * range, v.y * range, v.z * range);
-
-			net.minecraft.server.v1_13_R2.World world = player.getWorld();
-			MovingObjectPosition mop = world.rayTrace(v3d1, v3d2, FluidCollisionOption.NEVER, true, false);
-			if(mop != null) {
-				v3d2 = mop.pos;
-				hitBlock = true;
+				end = start.add(dir).multiply(range);
+				hits.set("hitblock", CBoolean.FALSE, t);
 			}
 
-			MCWorld w = new BukkitMCWorld(world.getWorld());
-			CArray entities = new CArray(t);
-			List<Entity> validTargets = world.a(EntityLiving.class, (entity) -> !entity.equals(player));
-			for(Entity entity : validTargets) {
-				AxisAlignedBB bb = entity.getBoundingBox();
-				MovingObjectPosition hit = bb.b(v3d1, v3d2);
-				if(hit != null){
-					CArray entityArray = CArray.GetAssociativeArray(t);
-					entityArray.set("uuid", new CString(entity.getUniqueID().toString(), t), t);
-					MCLocation l = StaticLayer.GetLocation(w, hit.pos.x, hit.pos.y, hit.pos.z);
-					entityArray.set("location", ObjectGenerator.GetGenerator().location(l, false), t);
-					entities.push(entityArray, t);
+			MCLocation blockHitPos = new BukkitMCLocation(end.toLocation(p.getWorld()));
+			hits.set("location", ObjectGenerator.GetGenerator().location(blockHitPos, false), t);
+			hits.set("origin", ObjectGenerator.GetGenerator().location(new BukkitMCLocation(loc)), t);
+
+			BoundingBox aabb = new BoundingBox(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
+			Collection<org.bukkit.entity.Entity> validTargets = p.getWorld().getNearbyEntities(aabb, entity -> entity instanceof LivingEntity && !p.equals(entity));
+			CArray hitEntities = new CArray(t);
+			for(org.bukkit.entity.Entity entity : validTargets) {
+				BoundingBox boundingBox = entity.getBoundingBox();
+				RayTraceResult hitResult = boundingBox.rayTrace(start, dir, range);
+				if (hitResult != null) {
+					CArray entityhit = CArray.GetAssociativeArray(t);
+					MCLocation hitPos = new BukkitMCLocation(hitResult.getHitPosition().toLocation(p.getWorld()));
+					entityhit.set("uuid", new CString(entity.getUniqueId().toString(), t), t);
+					entityhit.set("location", ObjectGenerator.GetGenerator().location(hitPos, false), t);
+					hitEntities.push(entityhit, t);
 				}
 			}
-
-			CArray hits = CArray.GetAssociativeArray(t);
-			hits.set("hitblock", CBoolean.get(hitBlock), t);
-			hits.set("entities", entities, t);
-			if(clocation == null) {
-				MCLocation l1 = StaticLayer.GetLocation(w, v3d1.x, v3d1.y, v3d1.z, player.yaw, player.pitch);
-				hits.set("origin", ObjectGenerator.GetGenerator().location(l1), t);
-			} else {
-				hits.set("origin", clocation, t);
-			}
-			MCLocation l2 = StaticLayer.GetLocation(w, v3d2.x, v3d2.y, v3d2.z);
-			hits.set("location", ObjectGenerator.GetGenerator().location(l2, false), t);
+			hits.set("entities", hitEntities, t);
+			
 			return hits;
 		}
 
@@ -749,28 +744,28 @@ public class Functions {
 					attribute = entity.getAttributeInstance(GenericAttributes.FOLLOW_RANGE);
 					break;
 				case "knockbackresistance":
-					attribute = entity.getAttributeInstance(GenericAttributes.c);
+					attribute = entity.getAttributeInstance(GenericAttributes.KNOCKBACK_RESISTANCE);
 					break;
 				case "maxhealth":
-					attribute = entity.getAttributeInstance(GenericAttributes.maxHealth);
+					attribute = entity.getAttributeInstance(GenericAttributes.MAX_HEALTH);
 					break;
 				case "flyingspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.e);
+					attribute = entity.getAttributeInstance(GenericAttributes.FLYING_SPEED);
 					break;
 				case "movementspeed":
 					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
 					break;
 				case "attackspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.g);
+					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_SPEED);
 					break;
 				case "armor":
-					attribute = entity.getAttributeInstance(GenericAttributes.h);
+					attribute = entity.getAttributeInstance(GenericAttributes.ARMOR);
 					break;
 				case "armortoughness":
-					attribute = entity.getAttributeInstance(GenericAttributes.i);
+					attribute = entity.getAttributeInstance(GenericAttributes.ARMOR_TOUGHNESS);
 					break;
 				case "luck":
-					attribute = entity.getAttributeInstance(GenericAttributes.j);
+					attribute = entity.getAttributeInstance(GenericAttributes.LUCK);
 					break;
 				default:
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
@@ -830,28 +825,28 @@ public class Functions {
 					attribute = entity.getAttributeInstance(GenericAttributes.FOLLOW_RANGE);
 					break;
 				case "knockbackresistance":
-					attribute = entity.getAttributeInstance(GenericAttributes.c);
+					attribute = entity.getAttributeInstance(GenericAttributes.KNOCKBACK_RESISTANCE);
 					break;
 				case "maxhealth":
-					attribute = entity.getAttributeInstance(GenericAttributes.maxHealth);
+					attribute = entity.getAttributeInstance(GenericAttributes.MAX_HEALTH);
 					break;
 				case "flyingspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.e);
+					attribute = entity.getAttributeInstance(GenericAttributes.FLYING_SPEED);
 					break;
 				case "movementspeed":
 					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
 					break;
 				case "attackspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.g);
+					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_SPEED);
 					break;
 				case "armor":
-					attribute = entity.getAttributeInstance(GenericAttributes.h);
+					attribute = entity.getAttributeInstance(GenericAttributes.ARMOR);
 					break;
 				case "armortoughness":
-					attribute = entity.getAttributeInstance(GenericAttributes.i);
+					attribute = entity.getAttributeInstance(GenericAttributes.ARMOR_TOUGHNESS);
 					break;
 				case "luck":
-					attribute = entity.getAttributeInstance(GenericAttributes.j);
+					attribute = entity.getAttributeInstance(GenericAttributes.LUCK);
 					break;
 				default:
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
@@ -1239,7 +1234,8 @@ public class Functions {
 
 		@Override
 		public String docs() {
-			return "void {entity, width, height} Sets an entity's collision box width and height";
+			return "void {entity, width, height} Sets an entity's collision box width and height."
+					+ " Currently non-functional.";
 		}
 
 		@Override
@@ -1247,7 +1243,7 @@ public class Functions {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 			float width = Static.getDouble32(args[1], t);
 			float height = Static.getDouble32(args[2], t);
-			entity.setSize(width, height);
+			//entity.updateSize(width, height); TODO
 			return CVoid.VOID;
 		}
 
