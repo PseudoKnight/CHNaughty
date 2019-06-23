@@ -72,6 +72,7 @@ import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftMetaBook;
+import org.bukkit.craftbukkit.v1_14_R1.util.CraftChatMessage;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -921,22 +922,26 @@ public class Functions {
 			}
 			ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
 			BookMeta bookmeta = (BookMeta) book.getItemMeta();
-			CArray pageArray = (CArray) pages;
-			try {
-				List<IChatBaseComponent> pageList = new ArrayList<>();
-				for(int i = 0; i < pageArray.size(); i++) {
-					String json = pageArray.get(i, t).val();
-					IChatBaseComponent component = IChatBaseComponent.ChatSerializer.a(json);
-					pageList.add(component);
-				}
-				((CraftMetaBook) bookmeta).pages = pageList;
-			} catch(JsonSyntaxException ex) {
-				List<String> pageList = new ArrayList<>();
-				for(int i = 0; i < pageArray.size(); i++) {
-					pageList.add(pageArray.get(i, t).val());
-				}
-				bookmeta.setPages(pageList);
+			if(bookmeta == null) {
+				throw new CRENullPointerException("Book meta is null. This shouldn't happen and may be a problem with the server.", t);
 			}
+			CArray pageArray = (CArray) pages;
+			List<IChatBaseComponent> pageList = new ArrayList<>();
+			for(int i = 0; i < pageArray.size(); i++) {
+				String text = pageArray.get(i, t).val();
+				IChatBaseComponent component;
+				if(text.charAt(0) == '[' || text.charAt(0) == '{') {
+					try {
+						component = IChatBaseComponent.ChatSerializer.a(text);
+						pageList.add(component);
+						continue;
+					} catch(IllegalStateException | JsonSyntaxException ex) {}
+				}
+				text = text.length() > 320 ? text.substring(0, 320) : text;
+				component = CraftChatMessage.fromString(text, true)[0];
+				pageList.add(component);
+			}
+			((CraftMetaBook) bookmeta).pages = pageList;
 			book.setItemMeta(bookmeta);
 
 			ItemStack currentItem = player.getInventory().getItemInMainHand();
@@ -959,8 +964,8 @@ public class Functions {
 
 		public String docs() {
 			return "void {[playerName], pages} Sends a virtual book to a player. Accepts an array of pages."
-					+ " All pages must be either raw JSON or strings. If the JSON is not formatted correctly, "
-					+ " it will fall back to string output.";
+					+ " Each page can be either JSON or a plain text. If the JSON is not formatted correctly, "
+					+ " it will fall back to string output per page.";
 		}
 
 		public Version since() {
