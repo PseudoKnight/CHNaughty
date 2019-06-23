@@ -1,6 +1,7 @@
 package me.pseudoknight.chnaughty;
 
 import com.google.gson.JsonSyntaxException;
+import com.laytonsmith.PureUtilities.Common.ReflectionUtils;
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.abstraction.MCCommandSender;
 import com.laytonsmith.abstraction.MCLocation;
@@ -46,6 +47,7 @@ import net.minecraft.server.v1_14_R1.Entity;
 import net.minecraft.server.v1_14_R1.EntityHuman;
 import net.minecraft.server.v1_14_R1.EntityLiving;
 import net.minecraft.server.v1_14_R1.EntityPlayer;
+import net.minecraft.server.v1_14_R1.EntitySize;
 import net.minecraft.server.v1_14_R1.EnumHand;
 import net.minecraft.server.v1_14_R1.Unit;
 import net.minecraft.server.v1_14_R1.GenericAttributes;
@@ -1234,8 +1236,7 @@ public class Functions {
 
 		@Override
 		public String docs() {
-			return "void {entity, width, height} Sets an entity's collision box width and height."
-					+ " Currently non-functional.";
+			return "void {entity, width, height} Sets an entity's collision box width and height.";
 		}
 
 		@Override
@@ -1243,7 +1244,7 @@ public class Functions {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 			float width = Static.getDouble32(args[1], t);
 			float height = Static.getDouble32(args[2], t);
-			//entity.updateSize(width, height); TODO
+			ReflectionUtils.set(Entity.class, entity, "size", EntitySize.b(width, height));
 			return CVoid.VOID;
 		}
 
