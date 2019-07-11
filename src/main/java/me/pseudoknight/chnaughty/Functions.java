@@ -43,12 +43,14 @@ import net.minecraft.server.v1_14_R1.AttributeInstance;
 import net.minecraft.server.v1_14_R1.BlockPosition;
 import net.minecraft.server.v1_14_R1.BlockStateBoolean;
 import net.minecraft.server.v1_14_R1.ChatMessageType;
+import net.minecraft.server.v1_14_R1.ChunkCoordIntPair;
 import net.minecraft.server.v1_14_R1.Entity;
 import net.minecraft.server.v1_14_R1.EntityHuman;
 import net.minecraft.server.v1_14_R1.EntityLiving;
 import net.minecraft.server.v1_14_R1.EntityPlayer;
 import net.minecraft.server.v1_14_R1.EntitySize;
 import net.minecraft.server.v1_14_R1.EnumHand;
+import net.minecraft.server.v1_14_R1.TicketType;
 import net.minecraft.server.v1_14_R1.Unit;
 import net.minecraft.server.v1_14_R1.GenericAttributes;
 import net.minecraft.server.v1_14_R1.IBlockData;
@@ -206,9 +208,29 @@ public class Functions {
 			CArray ca = (CArray) args[args.length - 1];
 
 			l = ObjectGenerator.GetGenerator().location(ca, null, t);
+			
+			if(!l.getWorld().getName().equals(connection.player.getWorld().getWorldData().getName())) {
+				throw new CREIllegalArgumentException("Cannot relative teleport to another world.", t);
+			}
+			
+			double x = l.getX();
+			double y = l.getY();
+			double z = l.getZ();
+			float yaw = l.getYaw();
+			float pitch = l.getPitch();
 
-			connection.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch(),
-					EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class), PlayerTeleportEvent.TeleportCause.PLUGIN);
+			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(x, y, z));
+
+			connection.player.getWorldServer().getChunkProvider().addTicket(TicketType.POST_TELEPORT, chunkcoordintpair, 1, connection.player.getId());
+			connection.player.stopRiding();
+			if (connection.player.isSleeping()) {
+				connection.player.wakeup(true, true, false);
+			}
+			connection.a(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
+					PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+			connection.player.setHeadRotation(yaw);
+
 			return CVoid.VOID;
 		}
 
@@ -370,7 +392,7 @@ public class Functions {
 				end = blockResult.getHitPosition();
 				hits.set("hitblock", CBoolean.TRUE, t);
 			} else {
-				end = start.add(dir).multiply(range);
+				end = start.add(dir.multiply(range));
 				hits.set("hitblock", CBoolean.FALSE, t);
 			}
 
