@@ -334,6 +334,8 @@ public class Functions {
 
 	@api
 	public static class ray_trace extends AbstractFunction {
+		
+		private int MAX_RANGE = Bukkit.getViewDistance() * 16;
 
 		@Override
 		public Class<? extends CREThrowable>[] thrown() {
@@ -354,7 +356,7 @@ public class Functions {
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Player p;
-			double range = 128;
+			double range = MAX_RANGE;
 			Location loc;
 			
 			if(args.length == 0) {
@@ -366,7 +368,7 @@ public class Functions {
 				loc = p.getEyeLocation();
 			} else if(args.length == 2) {
 				if(args[0] instanceof CArray) {
-					p = (Player) env.getEnv(CommandHelperEnvironment.class).GetPlayer().getHandle();
+					p = null;
 					loc = (Location) ObjectGenerator.GetGenerator().location(args[0], null, t).getHandle();
 				} else {
 					p = (Player) Static.GetPlayer(args[0].val(), t).getHandle();
@@ -374,16 +376,22 @@ public class Functions {
 				}
 				range = Static.getDouble32(args[1], t);
 			} else {
-				p = (Player) Static.GetPlayer(args[0].val(), t).getHandle();
-				loc = (Location) ObjectGenerator.GetGenerator().location(args[1], null, t).getHandle();
+				MCPlayer mcp = Static.GetPlayer(args[0].val(), t);
+				p = (Player) mcp.getHandle();
+				loc = (Location) ObjectGenerator.GetGenerator().location(args[1], mcp.getWorld(), t).getHandle();
 				range = Static.getDouble32(args[2], t);
 			}
+			
+			if(range == 0) {
+				throw new CRERangeException("Range cannot be zero!", t);
+			}
+			range = Math.min(range, MAX_RANGE);
 			
 			double yaw = Math.toRadians(loc.getYaw() + 90);
 			double pitch = Math.toRadians(-loc.getPitch());
 			Vector dir = new Vector(Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch));
 
-			RayTraceResult blockResult = p.getWorld().rayTraceBlocks(loc, dir, range, FluidCollisionMode.NEVER, true);
+			RayTraceResult blockResult = loc.getWorld().rayTraceBlocks(loc, dir, range, FluidCollisionMode.NEVER, true);
 			
 			Vector start = loc.toVector();
 			Vector end;
@@ -392,23 +400,23 @@ public class Functions {
 				end = blockResult.getHitPosition();
 				hits.set("hitblock", CBoolean.TRUE, t);
 			} else {
-				end = start.add(dir.multiply(range));
+				end = loc.toVector().add(dir.multiply(range));
 				hits.set("hitblock", CBoolean.FALSE, t);
 			}
 
-			MCLocation blockHitPos = new BukkitMCLocation(end.toLocation(p.getWorld()));
+			MCLocation blockHitPos = new BukkitMCLocation(end.toLocation(loc.getWorld()));
 			hits.set("location", ObjectGenerator.GetGenerator().location(blockHitPos, false), t);
 			hits.set("origin", ObjectGenerator.GetGenerator().location(new BukkitMCLocation(loc)), t);
 
 			BoundingBox aabb = new BoundingBox(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
-			Collection<org.bukkit.entity.Entity> validTargets = p.getWorld().getNearbyEntities(aabb, entity -> entity instanceof LivingEntity && !p.equals(entity));
+			Collection<org.bukkit.entity.Entity> validTargets = loc.getWorld().getNearbyEntities(aabb, entity -> entity instanceof LivingEntity && !entity.equals(p));
 			CArray hitEntities = new CArray(t);
 			for(org.bukkit.entity.Entity entity : validTargets) {
 				BoundingBox boundingBox = entity.getBoundingBox();
 				RayTraceResult hitResult = boundingBox.rayTrace(start, dir, range);
 				if (hitResult != null) {
 					CArray entityhit = CArray.GetAssociativeArray(t);
-					MCLocation hitPos = new BukkitMCLocation(hitResult.getHitPosition().toLocation(p.getWorld()));
+					MCLocation hitPos = new BukkitMCLocation(hitResult.getHitPosition().toLocation(loc.getWorld()));
 					entityhit.set("uuid", new CString(entity.getUniqueId().toString(), t), t);
 					entityhit.set("location", ObjectGenerator.GetGenerator().location(hitPos, false), t);
 					hitEntities.push(entityhit, t);
