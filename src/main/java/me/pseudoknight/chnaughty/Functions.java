@@ -977,7 +977,7 @@ public class Functions {
 			ItemStack currentItem = player.getInventory().getItemInMainHand();
 			player.getInventory().setItemInMainHand(book);
 			try {
-				player.getHandle().a(CraftItemStack.asNMSCopy(book), EnumHand.MAIN_HAND);
+				player.getHandle().openBook(CraftItemStack.asNMSCopy(book), EnumHand.MAIN_HAND);
 			} finally {
 				player.getInventory().setItemInMainHand(currentItem);
 			}
