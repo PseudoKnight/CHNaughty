@@ -1,6 +1,5 @@
 package me.pseudoknight.chnaughty;
 
-import com.google.gson.JsonSyntaxException;
 import com.laytonsmith.PureUtilities.Common.ReflectionUtils;
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.abstraction.MCCommandSender;
@@ -10,7 +9,12 @@ import com.laytonsmith.abstraction.bukkit.BukkitMCLocation;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.ObjectGenerator;
+import com.laytonsmith.core.Optimizable;
+import com.laytonsmith.core.ParseTree;
 import com.laytonsmith.core.Static;
+import com.laytonsmith.core.compiler.CompilerEnvironment;
+import com.laytonsmith.core.compiler.CompilerWarning;
+import com.laytonsmith.core.compiler.FileOptions;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CDouble;
@@ -34,64 +38,39 @@ import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
 import com.laytonsmith.core.exceptions.CRE.CRERangeException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
+import com.laytonsmith.core.exceptions.ConfigCompileException;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
-import com.mojang.datafixers.util.Either;
-import io.netty.buffer.Unpooled;
 import net.minecraft.server.v1_14_R1.AttributeInstance;
 import net.minecraft.server.v1_14_R1.BlockPosition;
-import net.minecraft.server.v1_14_R1.BlockStateBoolean;
-import net.minecraft.server.v1_14_R1.ChatMessageType;
 import net.minecraft.server.v1_14_R1.ChunkCoordIntPair;
 import net.minecraft.server.v1_14_R1.Entity;
-import net.minecraft.server.v1_14_R1.EntityHuman;
 import net.minecraft.server.v1_14_R1.EntityLiving;
 import net.minecraft.server.v1_14_R1.EntityPlayer;
 import net.minecraft.server.v1_14_R1.EntitySize;
-import net.minecraft.server.v1_14_R1.EnumHand;
 import net.minecraft.server.v1_14_R1.TicketType;
-import net.minecraft.server.v1_14_R1.Unit;
 import net.minecraft.server.v1_14_R1.GenericAttributes;
-import net.minecraft.server.v1_14_R1.IBlockData;
-import net.minecraft.server.v1_14_R1.IChatBaseComponent;
-import net.minecraft.server.v1_14_R1.PacketDataSerializer;
-import net.minecraft.server.v1_14_R1.PacketPlayOutAnimation;
-import net.minecraft.server.v1_14_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_14_R1.PacketPlayOutGameStateChange;
-import net.minecraft.server.v1_14_R1.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_14_R1.PacketPlayOutPosition;
-import net.minecraft.server.v1_14_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_14_R1.PlayerConnection;
-import net.minecraft.server.v1_14_R1.TileEntity;
-import net.minecraft.server.v1_14_R1.TileEntitySign;
-import net.minecraft.server.v1_14_R1.World;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftMetaBook;
-import org.bukkit.craftbukkit.v1_14_R1.util.CraftChatMessage;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
-import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public class Functions {
 	public static String docs() {
@@ -282,34 +261,7 @@ public class Functions {
 				Static.AssertPlayerNonNull(p, t);
 				loc = ObjectGenerator.GetGenerator().location(args[0], p.getWorld(), t);
 			}
-			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			BlockPosition pos = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-			Either<EntityHuman.EnumBedResult, Unit> result;
-			try {
-				result = player.sleep(pos);
-			} catch(IllegalArgumentException ex) {
-				throw new CREException("That is not a bed.", t);
-			}
-			result.ifRight((unit) -> {
-				IBlockData blockData = player.getWorld().getType(pos);
-				blockData = blockData.set(BlockStateBoolean.of("occupied"), true);
-				player.getWorld().setTypeAndData(pos, blockData, 4);
-			}).ifLeft((bedresult) -> {
-				switch(bedresult) {
-					case NOT_POSSIBLE_HERE:
-						throw new CREException("It's not possible to sleep here.", t);
-					case NOT_POSSIBLE_NOW:
-						throw new CREException("It's not possible to sleep now.", t);
-					case TOO_FAR_AWAY:
-						throw new CREException("That bed is too far away.", t);
-					case OBSTRUCTED:
-						throw new CREException("That bed is obstructed.", t);
-					case OTHER_PROBLEM:
-						throw new CREException("Can't sleep for some reason.", t);
-					case NOT_SAFE:
-						throw new CREException("It's not safe to sleep.", t);
-				}
-			});
+			Minecraft.Sleep(p, loc, t);
 			return CVoid.VOID;
 		}
 
@@ -334,8 +286,6 @@ public class Functions {
 
 	@api
 	public static class ray_trace extends AbstractFunction {
-		
-		private int MAX_RANGE = Bukkit.getViewDistance() * 16;
 
 		@Override
 		public Class<? extends CREThrowable>[] thrown() {
@@ -356,7 +306,7 @@ public class Functions {
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Player p;
-			double range = MAX_RANGE;
+			double range = Minecraft.VIEW_DISTANCE;
 			Location loc;
 			
 			if(args.length == 0) {
@@ -385,8 +335,8 @@ public class Functions {
 			if(range == 0) {
 				throw new CRERangeException("Range cannot be zero!", t);
 			}
-			range = Math.min(range, MAX_RANGE);
-			
+			range = Math.min(range, Minecraft.VIEW_DISTANCE);
+
 			double yaw = Math.toRadians(loc.getYaw() + 90);
 			double pitch = Math.toRadians(-loc.getPitch());
 			Vector dir = new Vector(Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch));
@@ -526,12 +476,8 @@ public class Functions {
 				}
 				message = args[0].val();
 			}
-			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
-			if(player == null) {
-				throw new CREPlayerOfflineException("No online player by that name.", t);
-			}
-			IChatBaseComponent actionMessage = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + message + "\"}");
-			player.getHandle().playerConnection.sendPacket(new PacketPlayOutChat(actionMessage, ChatMessageType.GAME_INFO));
+			MCPlayer player = Static.GetPlayer(name, t);
+			Minecraft.SendActionBarMessage(player, message);
 			return CVoid.VOID;
 		}
 
@@ -554,7 +500,7 @@ public class Functions {
 	}
 
 	@api
-	public static class title_msg extends AbstractFunction {
+	public static class title_msg extends AbstractFunction implements Optimizable {
 
 		public Class<? extends CREThrowable>[] thrown() {
 			return new Class[]{CREPlayerOfflineException.class,CRERangeException.class};
@@ -569,44 +515,32 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			String name = "";
+			MCPlayer player;
+			String title = "";
+			String subtitle = null;
+			int fadein = -1;
+			int stay = -1;
+			int fadeout = -1;
 			int offset = 0;
 			if(args.length == 3 || args.length == 6) {
-				name = args[0].val();
+				player = Static.GetPlayer(args[0], t);
 				offset = 1;
 			} else {
-				MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
-				if(sender instanceof MCPlayer) {
-					name = sender.getName();
-				}
+				player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(player, t);
 			}
-
-			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
-			if(player == null) {
-				throw new CREPlayerOfflineException("No online player by that name.", t);
-			}
-
-			PlayerConnection connection = player.getHandle().playerConnection;
-
-			if(args.length > 3) {
-				int fadein = Static.getInt32(args[2 + offset], t);
-				int stay = Static.getInt32(args[3 + offset], t);
-				int fadeout = Static.getInt32(args[4 + offset], t);
-				connection.sendPacket(new PacketPlayOutTitle(fadein, stay, fadeout));
-			}
-
 			if(Construct.nval(args[1 + offset]) != null) {
-				IChatBaseComponent subtitle = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + args[1 + offset].val() + "\"}");
-				connection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, subtitle));
+				subtitle = args[1 + offset].val();
 			}
-
-			String title = "";
 			if(Construct.nval(args[offset]) != null) {
 				title = args[offset].val();
 			}
-			IChatBaseComponent icbc = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + title + "\"}");
-			connection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, icbc));
-
+			if(args.length > 3) {
+				fadein = Static.getInt32(args[2 + offset], t);
+				stay = Static.getInt32(args[3 + offset], t);
+				fadeout = Static.getInt32(args[4 + offset], t);
+			}
+			Minecraft.SendTitleMessage(player, title, subtitle, fadein, stay, fadeout);
 			return CVoid.VOID;
 		}
 
@@ -628,10 +562,22 @@ public class Functions {
 			return MSVersion.V3_3_1;
 		}
 
+		@Override
+		public ParseTree optimizeDynamic(Target t, Environment env, Set<Class<? extends Environment.EnvironmentImpl>> envs,
+										 List<ParseTree> children, FileOptions fileOptions) throws ConfigCompileException, ConfigRuntimeException {
+			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions, new CompilerWarning(
+					"The function title_msg() is deprecated for title().", t, null));
+			return null;
+		}
+
+		@Override
+		public Set<Optimizable.OptimizationOption> optimizationOptions() {
+			return EnumSet.of(Optimizable.OptimizationOption.OPTIMIZE_DYNAMIC);
+		}
 	}
 
 	@api
-	public static class psend_list_header_footer extends AbstractFunction {
+	public static class psend_list_header_footer extends AbstractFunction implements Optimizable {
 
 		public Class<? extends CREThrowable>[] thrown() {
 			return new Class[]{CREPlayerOfflineException.class};
@@ -646,25 +592,15 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			String name = "";
+			MCPlayer player;
 			int offset = 0;
 			if(args.length == 3) {
-				name = args[0].val();
+				player = Static.GetPlayer(args[0], t);
 				offset = 1;
 			} else {
-				MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
-				if(sender instanceof MCPlayer) {
-					name = sender.getName();
-				}
+				player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(player, t);
 			}
-
-			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
-			if(player == null) {
-				throw new CREPlayerOfflineException("No online player by that name.", t);
-			}
-
-			PlayerConnection connection = player.getHandle().playerConnection;
-
 			String header = Construct.nval(args[offset]);
 			String footer = Construct.nval(args[1 + offset]);
 
@@ -675,18 +611,7 @@ public class Functions {
 				footer = "";
 			}
 
-			PacketDataSerializer serializer = new PacketDataSerializer(Unpooled.buffer());
-			serializer.a("{\"text\": \"" + header + "\"}");
-			serializer.a("{\"text\": \"" + footer + "\"}");
-
-			PacketPlayOutPlayerListHeaderFooter listPacket = new PacketPlayOutPlayerListHeaderFooter();
-			try {
-				listPacket.a(serializer);
-				connection.sendPacket(listPacket);
-			} catch(IOException ex) {
-				// failed
-			}
-
+			Minecraft.SendListHeaderFooter(player, header, footer);
 			return CVoid.VOID;
 		}
 
@@ -707,6 +632,19 @@ public class Functions {
 			return MSVersion.V3_3_1;
 		}
 
+		@Override
+		public ParseTree optimizeDynamic(Target t, Environment env, Set<Class<? extends Environment.EnvironmentImpl>> envs,
+				List<ParseTree> children, FileOptions fileOptions) throws ConfigCompileException, ConfigRuntimeException {
+			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions, new CompilerWarning(
+					"The function psend_list_header_footer() has been deprecated for"
+					+ " set_plist_header() and set_plist_footer().", t, null));
+			return null;
+		}
+
+		@Override
+		public Set<OptimizationOption> optimizationOptions() {
+			return EnumSet.of(OptimizationOption.OPTIMIZE_DYNAMIC);
+		}
 	}
 
 	@api
@@ -929,58 +867,17 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			String name = "";
-			Mixed pages;
+			MCPlayer player;
+			CArray pages;
 			if(args.length == 2) {
-				name = args[0].val();
-				pages = args[1];
+				player = Static.GetPlayer(args[0], t);
+				pages = Static.getArray(args[1], t);
 			} else {
-				MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
-				if(sender instanceof MCPlayer) {
-					name = sender.getName();
-				}
-				pages = args[0];
+				player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(player, t);
+				pages = Static.getArray(args[0], t);
 			}
-
-			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
-			if(player == null) {
-				throw new CREPlayerOfflineException("No online player by that name.", t);
-			}
-
-			if(!(pages instanceof CArray)){
-				throw new CREFormatException("Expected an array.", t);
-			}
-			ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-			BookMeta bookmeta = (BookMeta) book.getItemMeta();
-			if(bookmeta == null) {
-				throw new CRENullPointerException("Book meta is null. This shouldn't happen and may be a problem with the server.", t);
-			}
-			CArray pageArray = (CArray) pages;
-			List<IChatBaseComponent> pageList = new ArrayList<>();
-			for(int i = 0; i < pageArray.size(); i++) {
-				String text = pageArray.get(i, t).val();
-				IChatBaseComponent component;
-				if(text.charAt(0) == '[' || text.charAt(0) == '{') {
-					try {
-						component = IChatBaseComponent.ChatSerializer.a(text);
-						pageList.add(component);
-						continue;
-					} catch(IllegalStateException | JsonSyntaxException ex) {}
-				}
-				text = text.length() > 320 ? text.substring(0, 320) : text;
-				component = CraftChatMessage.fromString(text, true)[0];
-				pageList.add(component);
-			}
-			((CraftMetaBook) bookmeta).pages = pageList;
-			book.setItemMeta(bookmeta);
-
-			ItemStack currentItem = player.getInventory().getItemInMainHand();
-			player.getInventory().setItemInMainHand(book);
-			try {
-				player.getHandle().openBook(CraftItemStack.asNMSCopy(book), EnumHand.MAIN_HAND);
-			} finally {
-				player.getInventory().setItemInMainHand(currentItem);
-			}
+			Minecraft.OpenBook(player, pages, t);
 			return CVoid.VOID;
 		}
 
@@ -1058,15 +955,9 @@ public class Functions {
 				}
 				player.sendSignTextChange(signLoc, lines);
 			}
+			
+			Minecraft.OpenSign(player, signLoc, t);
 
-			World w = ((CraftWorld) signLoc.getWorld().getHandle()).getHandle();
-			TileEntity te = w.getTileEntity(new BlockPosition(signLoc.getBlockX(), signLoc.getBlockY(), signLoc.getBlockZ()));
-			if(!(te instanceof TileEntitySign)) {
-				throw new CRECastException("This location is not a sign.", t);
-			}
-			TileEntitySign sign = (TileEntitySign) te;
-			sign.isEditable = true;
-			((CraftPlayer) player.getHandle()).getHandle().openSign(sign);
 			return CVoid.VOID;
 		}
 
@@ -1159,28 +1050,18 @@ public class Functions {
 
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
-			EnumHand hand = EnumHand.MAIN_HAND;
+			String hand = "MAIN_HAND";
 			if(args.length == 2){
 				p = Static.GetPlayer(args[0].val(), t);
-				try {
-					hand = EnumHand.valueOf(args[1].val().toUpperCase());
-				} catch(IllegalArgumentException ex) {
-					throw new CREFormatException("Expected main_hand or off_hand but got \"" + args[1].val() + "\".", t);
-				}
+				hand = args[1].val().toUpperCase();
 			} else {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
 				if(args.length == 1) {
-					try {
-						hand = EnumHand.valueOf(args[0].val().toUpperCase());
-					} catch(IllegalArgumentException ex) {
-						p = Static.GetPlayer(args[0].val(), t);
-					}
+					hand = args[0].val().toUpperCase();
 				}
 			}
-			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			int h = hand.equals(EnumHand.MAIN_HAND) ? 0 : 3;
-			player.playerConnection.sendPacket(new PacketPlayOutAnimation(player, h)); // send to player
+			Minecraft.SwingHand(p, hand, t);
 			return CVoid.VOID;
 		}
 
@@ -1231,9 +1112,7 @@ public class Functions {
 				a = Static.getDouble32(args[0], t);
 				b = Static.getDouble32(args[1], t);
 			}
-			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.playerConnection.sendPacket(new PacketPlayOutGameStateChange(7, a));
-			player.playerConnection.sendPacket(new PacketPlayOutGameStateChange(8, b));
+			Minecraft.SetSky(p, a, b);
 			return CVoid.VOID;
 		}
 
