@@ -6,6 +6,7 @@ import com.laytonsmith.abstraction.MCCommandSender;
 import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
 import com.laytonsmith.abstraction.bukkit.BukkitMCLocation;
+import com.laytonsmith.abstraction.enums.MCEquipmentSlot;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.ObjectGenerator;
@@ -877,7 +878,7 @@ public class Functions {
 	public static class open_book extends AbstractFunction {
 
 		public Class<? extends CREThrowable>[] thrown() {
-			return new Class[]{CREPlayerOfflineException.class, CREFormatException.class};
+			return new Class[]{CREPlayerOfflineException.class, CREFormatException.class, CREIllegalArgumentException.class};
 		}
 
 		public boolean isRestricted() {
@@ -890,16 +891,20 @@ public class Functions {
 
 		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer player;
-			CArray pages;
+			Mixed data;
 			if(args.length == 2) {
 				player = Static.GetPlayer(args[0], t);
-				pages = Static.getArray(args[1], t);
+				data = args[1];
 			} else {
 				player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(player, t);
-				pages = Static.getArray(args[0], t);
+				data = args[0];
 			}
-			Minecraft.OpenBook(player, pages, t);
+			if(data instanceof CArray) {
+				Minecraft.OpenBook(player, (CArray) data, t);
+			} else {
+				Minecraft.OpenBook(player, data.val(), t);
+			}
 			return CVoid.VOID;
 		}
 
@@ -912,9 +917,11 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], pages} Sends a virtual book to a player. Accepts an array of pages."
+			return "void {[playerName], data} Sends a virtual book to a player."
+					+ " Accepts an array of pages or a hand that has a book to open."
 					+ " Each page can be either JSON or a plain text. If the JSON is not formatted correctly, "
-					+ " it will fall back to string output per page.";
+					+ " it will fall back to string output per page."
+					+ " If given a hand and there's no written book in it, nothing will happen.";
 		}
 
 		public Version since() {

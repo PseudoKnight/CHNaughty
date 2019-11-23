@@ -8,6 +8,7 @@ import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.exceptions.CRE.CRECastException;
 import com.laytonsmith.core.exceptions.CRE.CREException;
 import com.laytonsmith.core.exceptions.CRE.CREFormatException;
+import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.mojang.datafixers.util.Either;
 import io.netty.buffer.Unpooled;
@@ -19,10 +20,12 @@ import net.minecraft.server.v1_14_R1.EntityPlayer;
 import net.minecraft.server.v1_14_R1.EnumHand;
 import net.minecraft.server.v1_14_R1.IBlockData;
 import net.minecraft.server.v1_14_R1.IChatBaseComponent;
+import net.minecraft.server.v1_14_R1.Items;
 import net.minecraft.server.v1_14_R1.PacketDataSerializer;
 import net.minecraft.server.v1_14_R1.PacketPlayOutAnimation;
 import net.minecraft.server.v1_14_R1.PacketPlayOutChat;
 import net.minecraft.server.v1_14_R1.PacketPlayOutGameStateChange;
+import net.minecraft.server.v1_14_R1.PacketPlayOutOpenBook;
 import net.minecraft.server.v1_14_R1.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_14_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_14_R1.PlayerConnection;
@@ -151,7 +154,32 @@ class Minecraft {
 			player.getInventory().setItemInMainHand(currentItem);
 		}
 	}
-	
+
+	static void OpenBook(MCPlayer p, String hand, Target t) {
+		EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+		EnumHand h;
+		try {
+			h = EnumHand.valueOf(hand);
+		} catch (IllegalArgumentException ex) {
+			throw new CREIllegalArgumentException(ex.getMessage(), t);
+		}
+		net.minecraft.server.v1_14_R1.Item item;
+		try {
+			if(h == EnumHand.MAIN_HAND) {
+				item = player.getItemInMainHand().getItem();
+			} else {
+				item = player.getItemInOffHand().getItem();
+			}
+		} catch (NullPointerException ex) {
+			throw new CRENullPointerException(ex.getMessage(), t);
+		}
+		if(item == Items.WRITTEN_BOOK) {
+			player.playerConnection.sendPacket(new PacketPlayOutOpenBook(h));
+		} else {
+			throw new CREIllegalArgumentException("No book in the given hand.", t);
+		}
+	}
+
 	static void OpenSign(MCPlayer p, MCLocation signLoc, Target t) {
 		World w = ((CraftWorld) signLoc.getWorld().getHandle()).getHandle();
 		TileEntity te = w.getTileEntity(new BlockPosition(signLoc.getBlockX(), signLoc.getBlockY(), signLoc.getBlockZ()));
