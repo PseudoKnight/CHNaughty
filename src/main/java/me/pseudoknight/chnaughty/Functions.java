@@ -100,7 +100,7 @@ public class Functions {
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 
-			double yaw = Static.getDouble(args[1], t);
+			float yaw = (float) Static.getDouble(args[1], t);
 			yaw %= 360.0;
 			if(yaw >= 180.0) {
 				yaw -= 360.0;
@@ -109,16 +109,19 @@ public class Functions {
 			}
 
 			if(args.length == 3) {
-				double pitch = Static.getDouble(args[2], t);
+				float pitch = (float) Static.getDouble(args[2], t);
 				if(pitch > 90.0) {
-					pitch = 90.0;
+					pitch = 90.0F;
 				} else if(pitch < -90.0) {
-					pitch = -90.0;
+					pitch = -90.0F;
 				}
-				entity.pitch = (float) pitch;
+				entity.pitch = pitch;
+				entity.lastPitch = pitch;
 			}
 
-			entity.yaw = (float) yaw;
+			entity.yaw = yaw;
+			entity.lastYaw = yaw;
+			entity.setHeadRotation(yaw);
 			return CVoid.VOID;
 		}
 
@@ -307,6 +310,7 @@ public class Functions {
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Player p;
 			double range = Minecraft.VIEW_DISTANCE;
+			double raySize = 0.0D;
 			Location loc;
 			
 			if(args.length == 0) {
@@ -314,7 +318,7 @@ public class Functions {
 				loc = p.getEyeLocation();
 			} else if(args.length == 1) {
 				p = (Player) env.getEnv(CommandHelperEnvironment.class).GetPlayer().getHandle();
-				range = Static.getDouble32(args[0], t);
+				range = Static.getDouble(args[0], t);
 				loc = p.getEyeLocation();
 			} else if(args.length == 2) {
 				if(args[0] instanceof CArray) {
@@ -324,14 +328,26 @@ public class Functions {
 					p = (Player) Static.GetPlayer(args[0].val(), t).getHandle();
 					loc = p.getEyeLocation();
 				}
-				range = Static.getDouble32(args[1], t);
+				range = Static.getDouble(args[1], t);
+			} else if(args.length == 3) {
+				MCPlayer mcp = Static.GetPlayer(args[0].val(), t);
+				p = (Player) mcp.getHandle();
+				if(args[1] instanceof CArray) {
+					loc = (Location) ObjectGenerator.GetGenerator().location(args[1], mcp.getWorld(), t).getHandle();
+					range = Static.getDouble32(args[2], t);
+				} else {
+					loc = p.getEyeLocation();
+					range = Static.getDouble(args[1], t);
+					raySize = Static.getDouble(args[2], t);
+				}
 			} else {
 				MCPlayer mcp = Static.GetPlayer(args[0].val(), t);
 				p = (Player) mcp.getHandle();
 				loc = (Location) ObjectGenerator.GetGenerator().location(args[1], mcp.getWorld(), t).getHandle();
 				range = Static.getDouble32(args[2], t);
+				raySize = Static.getDouble(args[3], t);
 			}
-			
+
 			if(range == 0) {
 				throw new CRERangeException("Range cannot be zero!", t);
 			}
@@ -359,10 +375,16 @@ public class Functions {
 			hits.set("origin", ObjectGenerator.GetGenerator().location(new BukkitMCLocation(loc)), t);
 
 			BoundingBox aabb = new BoundingBox(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
+			if(raySize != 0.0D) {
+				aabb.expand(raySize);
+			}
 			Collection<org.bukkit.entity.Entity> validTargets = loc.getWorld().getNearbyEntities(aabb, entity -> entity instanceof LivingEntity && !entity.equals(p));
 			CArray hitEntities = new CArray(t);
 			for(org.bukkit.entity.Entity entity : validTargets) {
 				BoundingBox boundingBox = entity.getBoundingBox();
+				if(raySize != 0.0D) {
+					boundingBox.expand(raySize);
+				}
 				RayTraceResult hitResult = boundingBox.rayTrace(start, dir, range);
 				if (hitResult != null) {
 					CArray entityhit = CArray.GetAssociativeArray(t);
@@ -389,12 +411,12 @@ public class Functions {
 
 		@Override
 		public Integer[] numArgs() {
-			return new Integer[]{0,1,2,3};
+			return new Integer[]{0,1,2,3,4};
 		}
 
 		@Override
 		public String docs() {
-			return "array {[player, [location]], range} Returns an array of result data from a ray trace from the"
+			return "array {[player], [location], range, [raySize]} Returns an array of result data from a ray trace from the"
 					+ " player's eye location or the given location. Result array contains the following keys:"
 					+ " 'hitblock' is whether or not a block was hit; 'location' contains the location where the ray"
 					+ " trace ends; 'origin' contains the location where the ray trace starts (useful if you don't"
