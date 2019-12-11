@@ -6,16 +6,10 @@ import com.laytonsmith.abstraction.MCCommandSender;
 import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
 import com.laytonsmith.abstraction.bukkit.BukkitMCLocation;
-import com.laytonsmith.abstraction.enums.MCEquipmentSlot;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.ObjectGenerator;
-import com.laytonsmith.core.Optimizable;
-import com.laytonsmith.core.ParseTree;
 import com.laytonsmith.core.Static;
-import com.laytonsmith.core.compiler.CompilerEnvironment;
-import com.laytonsmith.core.compiler.CompilerWarning;
-import com.laytonsmith.core.compiler.FileOptions;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CDouble;
@@ -39,31 +33,30 @@ import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
 import com.laytonsmith.core.exceptions.CRE.CRERangeException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
-import com.laytonsmith.core.exceptions.ConfigCompileException;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
-import net.minecraft.server.v1_14_R1.AttributeInstance;
-import net.minecraft.server.v1_14_R1.BlockPosition;
-import net.minecraft.server.v1_14_R1.ChunkCoordIntPair;
-import net.minecraft.server.v1_14_R1.Entity;
-import net.minecraft.server.v1_14_R1.EntityLiving;
-import net.minecraft.server.v1_14_R1.EntityPlayer;
-import net.minecraft.server.v1_14_R1.EntitySize;
-import net.minecraft.server.v1_14_R1.TicketType;
-import net.minecraft.server.v1_14_R1.GenericAttributes;
-import net.minecraft.server.v1_14_R1.PacketPlayOutPosition;
-import net.minecraft.server.v1_14_R1.PlayerConnection;
+import net.minecraft.server.v1_15_R1.AttributeInstance;
+import net.minecraft.server.v1_15_R1.BlockPosition;
+import net.minecraft.server.v1_15_R1.ChunkCoordIntPair;
+import net.minecraft.server.v1_15_R1.Entity;
+import net.minecraft.server.v1_15_R1.EntityLiving;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
+import net.minecraft.server.v1_15_R1.EntitySize;
+import net.minecraft.server.v1_15_R1.TicketType;
+import net.minecraft.server.v1_15_R1.GenericAttributes;
+import net.minecraft.server.v1_15_R1.PacketPlayOutPosition;
+import net.minecraft.server.v1_15_R1.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -207,7 +200,7 @@ public class Functions {
 			connection.player.getWorldServer().getChunkProvider().addTicket(TicketType.POST_TELEPORT, chunkcoordintpair, 1, connection.player.getId());
 			connection.player.stopRiding();
 			if (connection.player.isSleeping()) {
-				connection.player.wakeup(true, true, false);
+				connection.player.wakeup(true, true);
 			}
 			connection.a(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
 					PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -520,154 +513,6 @@ public class Functions {
 			return MSVersion.V3_3_1;
 		}
 
-	}
-
-	@api
-	public static class title_msg extends AbstractFunction implements Optimizable {
-
-		public Class<? extends CREThrowable>[] thrown() {
-			return new Class[]{CREPlayerOfflineException.class,CRERangeException.class};
-		}
-
-		public boolean isRestricted() {
-			return true;
-		}
-
-		public Boolean runAsync() {
-			return false;
-		}
-
-		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			MCPlayer player;
-			String title = "";
-			String subtitle = null;
-			int fadein = -1;
-			int stay = -1;
-			int fadeout = -1;
-			int offset = 0;
-			if(args.length == 3 || args.length == 6) {
-				player = Static.GetPlayer(args[0], t);
-				offset = 1;
-			} else {
-				player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
-				Static.AssertPlayerNonNull(player, t);
-			}
-			if(Construct.nval(args[1 + offset]) != null) {
-				subtitle = args[1 + offset].val();
-			}
-			if(Construct.nval(args[offset]) != null) {
-				title = args[offset].val();
-			}
-			if(args.length > 3) {
-				fadein = Static.getInt32(args[2 + offset], t);
-				stay = Static.getInt32(args[3 + offset], t);
-				fadeout = Static.getInt32(args[4 + offset], t);
-			}
-			Minecraft.SendTitleMessage(player, title, subtitle, fadein, stay, fadeout);
-			return CVoid.VOID;
-		}
-
-		public String getName() {
-			return "title_msg";
-		}
-
-		public Integer[] numArgs() {
-			return new Integer[]{2, 3, 5, 6};
-		}
-
-		public String docs() {
-			return "void {[playerName], title, subtitle, [fadein, stay, fadeout]} Sends a title message to a player."
-					+ " fadein, stay and fadeout must be integers in ticks. Defaults are 20, 60, 20 respectively."
-					+ " The title or subtitle can be null. (Deprecated in favor of title())";
-		}
-
-		public Version since() {
-			return MSVersion.V3_3_1;
-		}
-
-		@Override
-		public ParseTree optimizeDynamic(Target t, Environment env, Set<Class<? extends Environment.EnvironmentImpl>> envs,
-										 List<ParseTree> children, FileOptions fileOptions) throws ConfigCompileException, ConfigRuntimeException {
-			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions, new CompilerWarning(
-					"The function title_msg() is deprecated for title().", t, null));
-			return null;
-		}
-
-		@Override
-		public Set<Optimizable.OptimizationOption> optimizationOptions() {
-			return EnumSet.of(Optimizable.OptimizationOption.OPTIMIZE_DYNAMIC);
-		}
-	}
-
-	@api
-	public static class psend_list_header_footer extends AbstractFunction implements Optimizable {
-
-		public Class<? extends CREThrowable>[] thrown() {
-			return new Class[]{CREPlayerOfflineException.class};
-		}
-
-		public boolean isRestricted() {
-			return true;
-		}
-
-		public Boolean runAsync() {
-			return false;
-		}
-
-		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			MCPlayer player;
-			int offset = 0;
-			if(args.length == 3) {
-				player = Static.GetPlayer(args[0], t);
-				offset = 1;
-			} else {
-				player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
-				Static.AssertPlayerNonNull(player, t);
-			}
-			String header = Construct.nval(args[offset]);
-			String footer = Construct.nval(args[1 + offset]);
-
-			if(header == null) {
-				header = "";
-			}
-			if(footer == null) {
-				footer = "";
-			}
-
-			Minecraft.SendListHeaderFooter(player, header, footer);
-			return CVoid.VOID;
-		}
-
-		public String getName() {
-			return "psend_list_header_footer";
-		}
-
-		public Integer[] numArgs() {
-			return new Integer[]{2, 3};
-		}
-
-		public String docs() {
-			return "void {[playerName], header, footer} Sends a header and/or footer to a player's tab list."
-				+ "Header or footer can be null";
-		}
-
-		public Version since() {
-			return MSVersion.V3_3_1;
-		}
-
-		@Override
-		public ParseTree optimizeDynamic(Target t, Environment env, Set<Class<? extends Environment.EnvironmentImpl>> envs,
-				List<ParseTree> children, FileOptions fileOptions) throws ConfigCompileException, ConfigRuntimeException {
-			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions, new CompilerWarning(
-					"The function psend_list_header_footer() has been deprecated for"
-					+ " set_plist_header() and set_plist_footer().", t, null));
-			return null;
-		}
-
-		@Override
-		public Set<OptimizationOption> optimizationOptions() {
-			return EnumSet.of(OptimizationOption.OPTIMIZE_DYNAMIC);
-		}
 	}
 
 	@api

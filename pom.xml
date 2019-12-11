@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.pseudoknight</groupId>
     <artifactId>CHNaughty</artifactId>
-    <version>3.11.4</version>
+    <version>4.0.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <version>1.15-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q</groupId>
