@@ -144,6 +144,8 @@ class Minecraft {
 			pageList.add(component);
 		}
 		((CraftMetaBook) bookmeta).pages = pageList;
+		bookmeta.setTitle(" ");
+		bookmeta.setAuthor(" ");
 		book.setItemMeta(bookmeta);
 
 		ItemStack currentItem = player.getInventory().getItemInMainHand();
