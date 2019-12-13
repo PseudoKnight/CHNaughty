@@ -3,23 +3,24 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Downloads
-[Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.3) (CommandHelper 3.3.4 build 3777)
-[Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.2) (CommandHelper 3.3.4)
-[Spigot 1.14.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.1) (CommandHelper 3.3.4)
-[Spigot 1.13.2](https://letsbuild.net/jenkins/job/CHNaughty/10/)  (CommandHelper 3.3.4)
-[Spigot 1.13.2](https://letsbuild.net/jenkins/job/CHNaughty/8/)  (CommandHelper 3.3.3)
-[Spigot 1.12.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.9.0)  
-[Spigot 1.11.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.4.2)  
-[Spigot 1.10.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.4.1)  
-[Spigot 1.9.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.2.0)  
-[Spigot 1.8.8](https://github.com/PseudoKnight/CHNaughty/releases/tag/v2.0.1)
+[Spigot 1.15.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.0.1) (CommandHelper 3.3.4 latest snapshots)  
+[Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.4b) (CommandHelper 3.3.4 latest snapshots)  
+[Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.2) (CommandHelper 3.3.4 up to build 3776)  
+[Spigot 1.14.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.1) (CommandHelper 3.3.4 up to build 3776)  
+[Spigot 1.13.2](https://letsbuild.net/jenkins/job/CHNaughty/10/) (CommandHelper 3.3.4 up to build 3776)  
+[Spigot 1.13.2](https://letsbuild.net/jenkins/job/CHNaughty/8/) (CommandHelper 3.3.3)  
+[Spigot 1.12.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.9.0) (CommandHelper 3.3.2)  
+[Spigot 1.11.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.4.2) (CommandHelper 3.3.2)  
+[Spigot 1.10.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.4.1) (CommandHelper 3.3.2)  
+[Spigot 1.9.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.2.0) (CommandHelper 3.3.2)  
+[Spigot 1.8.8](https://github.com/PseudoKnight/CHNaughty/releases/tag/v2.0.1) (CommandHelper 3.3.2)
 
 ## Functions
 ### open_sign{[player], signLocation, [lines]}
 Opens a sign editor for the given sign location. Lines must be an array with 4 values or null. If not provided, it'll use the lines from the given sign.
 
-### open_book{[playerName], pages}
-Sends a virtual book to a player. Accepts an array of pages. All pages must be either raw JSON or strings. If the JSON is not formatted correctly, it will fall back to string output.
+### open_book{[playerName], pages | [playerName], hand}
+Sends a virtual book to a player. Accepts an array of pages or the player hand in which an existing book resides. All pages must be either raw JSON or strings. If the JSON is not formatted correctly, it will fall back to string output.
 
 ### relative_teleport([playerName], relativeLocation)
 Sets the player location relative to where they are on their client. This can be used for smooth teleportation. The location is not an absolute world location. X would be how many meters along the x coordinate the location is from the player's current location.
@@ -43,7 +44,7 @@ Sends a packet to the player to change their sky color.
 ### set_parrow_count([playerName], count)
 Sets the player's body arrow count.
 
-### ray_trace([playerName], [location], [range])
+### ray_trace([playerName], [location], [range], [raySize])
 Returns an array of result data from a ray trace from the player's eye location or the given location. Result array contains the following keys: 'hitblock' is whether or not a block was hit; 'location' contains the location where the ray trace ends; 'origin' contains the location where the ray trace starts (useful if you don't specify a location manually); 'entities' contains an array of hit entities where each array contains a 'location' key and 'uuid' key.
 
 ### action_msg([playerName], message)
