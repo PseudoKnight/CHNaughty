@@ -63,8 +63,6 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
 
 public class Functions {
 	public static String docs() {
@@ -895,11 +893,61 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], count} Sets the player's body arrow count.";
+			return "void {[playerName], count} Sets the amount of arrows in a player's model.";
 		}
 
 		public Version since() {
 			return MSVersion.V3_3_2;
+		}
+
+	}
+
+	@api
+	public static class set_pstinger_count extends AbstractFunction {
+
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CRECastException.class,
+					CRERangeException.class};
+		}
+
+		public boolean isRestricted() {
+			return true;
+		}
+
+		public Boolean runAsync() {
+			return false;
+		}
+
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
+			MCPlayer p;
+			int stingers;
+			if(args.length == 2){
+				p = Static.GetPlayer(args[0].val(), t);
+				stingers = Static.getInt32(args[1], t);
+			} else {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+				stingers = Static.getInt32(args[0], t);
+			}
+			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
+			player.q(stingers);
+			return CVoid.VOID;
+		}
+
+		public String getName() {
+			return "set_pstinger_count";
+		}
+
+		public Integer[] numArgs() {
+			return new Integer[]{1, 2};
+		}
+
+		public String docs() {
+			return "void {[playerName], count} Sets the amount of bee stingers in a player's model.";
+		}
+
+		public Version since() {
+			return MSVersion.V3_3_4;
 		}
 
 	}
