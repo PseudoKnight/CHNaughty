@@ -22,9 +22,8 @@ Opens a sign editor for the given sign location. Lines must be an array with 4 v
 ### open_book{[playerName], pages | [playerName], hand}
 Sends a virtual book to a player. Accepts an array of pages or the player hand in which an existing book resides. All pages must be either raw JSON or strings. If the JSON is not formatted correctly, it will fall back to string output.
 
-### relative_teleport([playerName], relativeLocation)
-Sets the player location relative to where they are on their client. This can be used for smooth teleportation. The location is not an absolute world location. X would be how many meters along the x coordinate the location is from the player's current location.
-NOTE: This should work as a smooth teleport in 1.14 again.
+### relative_teleport([playerName], locationArray)
+Sets the player location relative to where they are on their client. This can be used for smooth teleportation.
 
 ### set_entity_rotation(entityID, yaw, [pitch])
 Sets an entity's yaw and pitch without teleporting or ejecting.
