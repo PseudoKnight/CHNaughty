@@ -11,7 +11,6 @@ import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.mojang.datafixers.util.Either;
-import io.netty.buffer.Unpooled;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.BlockStateBoolean;
 import net.minecraft.server.v1_15_R1.ChatMessageType;
@@ -21,13 +20,10 @@ import net.minecraft.server.v1_15_R1.EnumHand;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.IChatBaseComponent;
 import net.minecraft.server.v1_15_R1.Items;
-import net.minecraft.server.v1_15_R1.PacketDataSerializer;
 import net.minecraft.server.v1_15_R1.PacketPlayOutAnimation;
 import net.minecraft.server.v1_15_R1.PacketPlayOutChat;
 import net.minecraft.server.v1_15_R1.PacketPlayOutGameStateChange;
 import net.minecraft.server.v1_15_R1.PacketPlayOutOpenBook;
-import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_15_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_15_R1.PlayerConnection;
 import net.minecraft.server.v1_15_R1.TileEntity;
 import net.minecraft.server.v1_15_R1.TileEntitySign;
@@ -43,7 +39,6 @@ import org.bukkit.craftbukkit.v1_15_R1.util.CraftChatMessage;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,33 +56,6 @@ class Minecraft {
 	static void SendActionBarMessage(MCPlayer player, String msg) {
 		GetConnection(player).sendPacket(
 				new PacketPlayOutChat(Serialize("{\"text\": \"" + msg + "\"}"), ChatMessageType.GAME_INFO));
-	}
-
-	static void SendTitleMessage(MCPlayer player, String title, String subtitle, int fadein, int stay, int fadeout) {
-		PlayerConnection connection = GetConnection(player);
-		if(fadein > -1) {
-			connection.sendPacket(new PacketPlayOutTitle(fadein, stay, fadeout));
-		}
-		if(subtitle != null) {
-			connection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, 
-					Serialize("{\"text\": \"" + subtitle + "\"}")));
-		}
-		connection.sendPacket(new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, 
-				Serialize("{\"text\": \"" + title + "\"}")));
-	}
-	
-	static void SendListHeaderFooter(MCPlayer player, String header, String footer) {
-		PacketDataSerializer serializer = new PacketDataSerializer(Unpooled.buffer());
-		serializer.a("{\"text\": \"" + header + "\"}");
-		serializer.a("{\"text\": \"" + footer + "\"}");
-
-		PacketPlayOutPlayerListHeaderFooter listPacket = new PacketPlayOutPlayerListHeaderFooter();
-		try {
-			listPacket.a(serializer);
-			GetConnection(player).sendPacket(listPacket);
-		} catch(IOException ex) {
-			// failed
-		}
 	}
 
 	static void Sleep(MCPlayer p, MCLocation loc, Target t) {
