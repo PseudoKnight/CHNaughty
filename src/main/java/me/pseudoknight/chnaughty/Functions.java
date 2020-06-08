@@ -7,6 +7,7 @@ import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
 import com.laytonsmith.abstraction.bukkit.BukkitMCLocation;
 import com.laytonsmith.annotations.api;
+import com.laytonsmith.core.ArgumentValidation;
 import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.ObjectGenerator;
 import com.laytonsmith.core.Static;
@@ -92,7 +93,7 @@ public class Functions {
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 
-			float yaw = (float) Static.getDouble(args[1], t);
+			float yaw = (float) ArgumentValidation.getDouble(args[1], t);
 			yaw %= 360.0;
 			if(yaw >= 180.0) {
 				yaw -= 360.0;
@@ -101,7 +102,7 @@ public class Functions {
 			}
 
 			if(args.length == 3) {
-				float pitch = (float) Static.getDouble(args[2], t);
+				float pitch = (float) ArgumentValidation.getDouble(args[2], t);
 				if(pitch > 90.0) {
 					pitch = 90.0F;
 				} else if(pitch < -90.0) {
@@ -310,7 +311,7 @@ public class Functions {
 				loc = p.getEyeLocation();
 			} else if(args.length == 1) {
 				p = (Player) env.getEnv(CommandHelperEnvironment.class).GetPlayer().getHandle();
-				range = Static.getDouble(args[0], t);
+				range = ArgumentValidation.getDouble(args[0], t);
 				loc = p.getEyeLocation();
 			} else if(args.length == 2) {
 				if(args[0] instanceof CArray) {
@@ -320,24 +321,24 @@ public class Functions {
 					p = (Player) Static.GetPlayer(args[0].val(), t).getHandle();
 					loc = p.getEyeLocation();
 				}
-				range = Static.getDouble(args[1], t);
+				range = ArgumentValidation.getDouble(args[1], t);
 			} else if(args.length == 3) {
 				MCPlayer mcp = Static.GetPlayer(args[0].val(), t);
 				p = (Player) mcp.getHandle();
 				if(args[1] instanceof CArray) {
 					loc = (Location) ObjectGenerator.GetGenerator().location(args[1], mcp.getWorld(), t).getHandle();
-					range = Static.getDouble32(args[2], t);
+					range = ArgumentValidation.getDouble(args[2], t);
 				} else {
 					loc = p.getEyeLocation();
-					range = Static.getDouble(args[1], t);
-					raySize = Static.getDouble(args[2], t);
+					range = ArgumentValidation.getDouble(args[1], t);
+					raySize = ArgumentValidation.getDouble(args[2], t);
 				}
 			} else {
 				MCPlayer mcp = Static.GetPlayer(args[0].val(), t);
 				p = (Player) mcp.getHandle();
 				loc = (Location) ObjectGenerator.GetGenerator().location(args[1], mcp.getWorld(), t).getHandle();
-				range = Static.getDouble32(args[2], t);
-				raySize = Static.getDouble(args[3], t);
+				range = ArgumentValidation.getDouble(args[2], t);
+				raySize = ArgumentValidation.getDouble(args[3], t);
 			}
 
 			if(range == 0) {
@@ -689,7 +690,7 @@ public class Functions {
 					throw new CREIllegalArgumentException("Unknown attribute.", t);
 			}
 			try {
-				attribute.setValue(Static.getDouble(args[2], t));
+				attribute.setValue(ArgumentValidation.getDouble(args[2], t));
 			} catch (NullPointerException e) {
 				throw new CRENullPointerException("This mob does not have this attribute.", t);
 			}
@@ -873,11 +874,11 @@ public class Functions {
 			int arrowCount;
 			if(args.length == 2){
 				p = Static.GetPlayer(args[0].val(), t);
-				arrowCount = Static.getInt32(args[1], t);
+				arrowCount = ArgumentValidation.getInt32(args[1], t);
 			} else {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
-				arrowCount = Static.getInt32(args[0], t);
+				arrowCount = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
 			player.setArrowCount(arrowCount);
@@ -923,11 +924,11 @@ public class Functions {
 			int stingers;
 			if(args.length == 2){
 				p = Static.GetPlayer(args[0].val(), t);
-				stingers = Static.getInt32(args[1], t);
+				stingers = ArgumentValidation.getInt32(args[1], t);
 			} else {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
-				stingers = Static.getInt32(args[0], t);
+				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
 			player.q(stingers);
@@ -1026,13 +1027,13 @@ public class Functions {
 			float b;
 			if(args.length == 3){
 				p = Static.GetPlayer(args[0].val(), t);
-				a = Static.getDouble32(args[1], t);
-				b = Static.getDouble32(args[2], t);
+				a = ArgumentValidation.getDouble32(args[1], t);
+				b = ArgumentValidation.getDouble32(args[2], t);
 			} else {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
-				a = Static.getDouble32(args[0], t);
-				b = Static.getDouble32(args[1], t);
+				a = ArgumentValidation.getDouble32(args[0], t);
+				b = ArgumentValidation.getDouble32(args[1], t);
 			}
 			Minecraft.SetSky(p, a, b);
 			return CVoid.VOID;
@@ -1078,8 +1079,8 @@ public class Functions {
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
-			float width = Static.getDouble32(args[1], t);
-			float height = Static.getDouble32(args[2], t);
+			float width = ArgumentValidation.getDouble32(args[1], t);
+			float height = ArgumentValidation.getDouble32(args[2], t);
 			ReflectionUtils.set(Entity.class, entity, "size", EntitySize.b(width, height));
 			return CVoid.VOID;
 		}
