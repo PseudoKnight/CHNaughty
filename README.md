@@ -58,12 +58,6 @@ if(function_exists('action_msg')) {
 }
 ```
 
-### title_msg([playerName], title, subtitle, [fadein, stay, fadeout])
-Deprecated for title() in CommandHelper. Sends a title message to a player. The fadein, stay and fadeout arguments must be integers representing time in ticks (50ms). Defaults are 20, 60, 20 respectively. The title or subtitle can be null. If a new title message is sent while one is in progress for that player, the new function will use the previous title arguments if they're not provided.
-
-### psend_list_header_footer([playerName], header, footer)
-Sends a header and/or footer to a player's tab list. Header or footer can be null.
-
 ### tps()
 Returns an array of average ticks per second over 5, 10 and 15 minutes. eg. {19.9999999,19.99888567,19.56889299}
 
