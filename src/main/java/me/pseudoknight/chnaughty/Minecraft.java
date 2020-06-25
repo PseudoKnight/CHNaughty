@@ -11,31 +11,32 @@ import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.mojang.datafixers.util.Either;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.BlockStateBoolean;
-import net.minecraft.server.v1_15_R1.ChatMessageType;
-import net.minecraft.server.v1_15_R1.EntityHuman;
-import net.minecraft.server.v1_15_R1.EntityPlayer;
-import net.minecraft.server.v1_15_R1.EnumHand;
-import net.minecraft.server.v1_15_R1.IBlockData;
-import net.minecraft.server.v1_15_R1.IChatBaseComponent;
-import net.minecraft.server.v1_15_R1.Items;
-import net.minecraft.server.v1_15_R1.PacketPlayOutAnimation;
-import net.minecraft.server.v1_15_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_15_R1.PacketPlayOutGameStateChange;
-import net.minecraft.server.v1_15_R1.PacketPlayOutOpenBook;
-import net.minecraft.server.v1_15_R1.PlayerConnection;
-import net.minecraft.server.v1_15_R1.TileEntity;
-import net.minecraft.server.v1_15_R1.TileEntitySign;
-import net.minecraft.server.v1_15_R1.Unit;
-import net.minecraft.server.v1_15_R1.World;
+import net.minecraft.server.v1_16_R1.BlockPosition;
+import net.minecraft.server.v1_16_R1.BlockStateBoolean;
+import net.minecraft.server.v1_16_R1.ChatMessageType;
+import net.minecraft.server.v1_16_R1.EntityHuman;
+import net.minecraft.server.v1_16_R1.EntityPlayer;
+import net.minecraft.server.v1_16_R1.EnumHand;
+import net.minecraft.server.v1_16_R1.IBlockData;
+import net.minecraft.server.v1_16_R1.IChatBaseComponent;
+import net.minecraft.server.v1_16_R1.Items;
+import net.minecraft.server.v1_16_R1.PacketPlayOutAnimation;
+import net.minecraft.server.v1_16_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_16_R1.PacketPlayOutGameStateChange;
+import net.minecraft.server.v1_16_R1.PacketPlayOutOpenBook;
+import net.minecraft.server.v1_16_R1.PlayerConnection;
+import net.minecraft.server.v1_16_R1.SystemUtils;
+import net.minecraft.server.v1_16_R1.TileEntity;
+import net.minecraft.server.v1_16_R1.TileEntitySign;
+import net.minecraft.server.v1_16_R1.Unit;
+import net.minecraft.server.v1_16_R1.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftMetaBook;
-import org.bukkit.craftbukkit.v1_15_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftMetaBook;
+import org.bukkit.craftbukkit.v1_16_R1.util.CraftChatMessage;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
@@ -55,7 +56,7 @@ class Minecraft {
 
 	static void SendActionBarMessage(MCPlayer player, String msg) {
 		GetConnection(player).sendPacket(
-				new PacketPlayOutChat(Serialize("{\"text\": \"" + msg + "\"}"), ChatMessageType.GAME_INFO));
+				new PacketPlayOutChat(Serialize("{\"text\": \"" + msg + "\"}"), ChatMessageType.GAME_INFO, SystemUtils.b));
 	}
 
 	static void Sleep(MCPlayer p, MCLocation loc, Target t) {
@@ -133,7 +134,7 @@ class Minecraft {
 		} catch (IllegalArgumentException ex) {
 			throw new CREIllegalArgumentException(ex.getMessage(), t);
 		}
-		net.minecraft.server.v1_15_R1.Item item;
+		net.minecraft.server.v1_16_R1.Item item;
 		try {
 			if(h == EnumHand.MAIN_HAND) {
 				item = player.getItemInMainHand().getItem();
@@ -175,7 +176,7 @@ class Minecraft {
 	
 	static void SetSky(MCPlayer p, float a, float b) {
 		PlayerConnection conn = GetConnection(p);
-		conn.sendPacket(new PacketPlayOutGameStateChange(7, a));
-		conn.sendPacket(new PacketPlayOutGameStateChange(8, b));
+		conn.sendPacket(new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.h, a));
+		conn.sendPacket(new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.i, b));
 	}
 }

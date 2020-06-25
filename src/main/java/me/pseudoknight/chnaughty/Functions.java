@@ -37,27 +37,27 @@ import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
-import net.minecraft.server.v1_15_R1.AttributeInstance;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.ChunkCoordIntPair;
-import net.minecraft.server.v1_15_R1.Entity;
-import net.minecraft.server.v1_15_R1.EntityLiving;
-import net.minecraft.server.v1_15_R1.EntityPlayer;
-import net.minecraft.server.v1_15_R1.EntitySize;
-import net.minecraft.server.v1_15_R1.TicketType;
-import net.minecraft.server.v1_15_R1.GenericAttributes;
-import net.minecraft.server.v1_15_R1.PacketPlayOutPosition;
-import net.minecraft.server.v1_15_R1.PlayerConnection;
+import net.minecraft.server.v1_16_R1.AttributeModifiable;
+import net.minecraft.server.v1_16_R1.BlockPosition;
+import net.minecraft.server.v1_16_R1.ChunkCoordIntPair;
+import net.minecraft.server.v1_16_R1.Entity;
+import net.minecraft.server.v1_16_R1.EntityLiving;
+import net.minecraft.server.v1_16_R1.EntityPlayer;
+import net.minecraft.server.v1_16_R1.EntitySize;
+import net.minecraft.server.v1_16_R1.TicketType;
+import net.minecraft.server.v1_16_R1.GenericAttributes;
+import net.minecraft.server.v1_16_R1.PacketPlayOutPosition;
+import net.minecraft.server.v1_16_R1.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -183,11 +183,11 @@ public class Functions {
 			CArray ca = (CArray) args[args.length - 1];
 
 			l = ObjectGenerator.GetGenerator().location(ca, null, t);
-			
-			if(!l.getWorld().getName().equals(connection.player.getWorld().getWorldData().getName())) {
+
+			if(!l.getWorld().getName().equals(player.getWorld().getName())) {
 				throw new CREIllegalArgumentException("Cannot relative teleport to another world.", t);
 			}
-			
+
 			double x = l.getX();
 			double y = l.getY();
 			double z = l.getZ();
@@ -573,7 +573,7 @@ public class Functions {
 
 		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
-			AttributeInstance attribute;
+			AttributeModifiable attribute;
 			switch(args[1].val().toLowerCase()) {
 				case "attackdamage":
 					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE);
@@ -654,7 +654,7 @@ public class Functions {
 
 		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
 			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
-			AttributeInstance attribute;
+			AttributeModifiable attribute;
 			switch(args[1].val().toLowerCase()){
 				case "attackdamage":
 					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE);
