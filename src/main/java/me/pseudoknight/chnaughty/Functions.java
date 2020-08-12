@@ -37,27 +37,28 @@ import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
-import net.minecraft.server.v1_16_R1.AttributeModifiable;
-import net.minecraft.server.v1_16_R1.BlockPosition;
-import net.minecraft.server.v1_16_R1.ChunkCoordIntPair;
-import net.minecraft.server.v1_16_R1.Entity;
-import net.minecraft.server.v1_16_R1.EntityLiving;
-import net.minecraft.server.v1_16_R1.EntityPlayer;
-import net.minecraft.server.v1_16_R1.EntitySize;
-import net.minecraft.server.v1_16_R1.TicketType;
-import net.minecraft.server.v1_16_R1.GenericAttributes;
-import net.minecraft.server.v1_16_R1.PacketPlayOutPosition;
-import net.minecraft.server.v1_16_R1.PlayerConnection;
+import net.minecraft.server.v1_16_R2.AttributeModifiable;
+import net.minecraft.server.v1_16_R2.BlockPosition;
+import net.minecraft.server.v1_16_R2.ChunkCoordIntPair;
+import net.minecraft.server.v1_16_R2.Entity;
+import net.minecraft.server.v1_16_R2.EntityLiving;
+import net.minecraft.server.v1_16_R2.EntityPlayer;
+import net.minecraft.server.v1_16_R2.EntitySize;
+import net.minecraft.server.v1_16_R2.TicketType;
+import net.minecraft.server.v1_16_R2.GenericAttributes;
+import net.minecraft.server.v1_16_R2.PacketPlayOutPosition;
+import net.minecraft.server.v1_16_R2.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -351,16 +352,21 @@ public class Functions {
 			Vector dir = new Vector(Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch));
 
 			RayTraceResult blockResult = loc.getWorld().rayTraceBlocks(loc, dir, range, FluidCollisionMode.NEVER, true);
-			
+
 			Vector start = loc.toVector();
 			Vector end;
 			CArray hits = CArray.GetAssociativeArray(t);
 			if(blockResult != null) {
 				end = blockResult.getHitPosition();
 				hits.set("hitblock", CBoolean.TRUE, t);
+				hits.set("block", ObjectGenerator.GetGenerator().location(new BukkitMCLocation(blockResult.getHitBlock().getLocation()), false), t);
+				BlockFace face = blockResult.getHitBlockFace();
+				hits.set("hitface", face == null ? CNull.NULL : new CString(face.name(), t), t);
 			} else {
 				end = loc.toVector().add(dir.multiply(range));
 				hits.set("hitblock", CBoolean.FALSE, t);
+				hits.set("block", CNull.NULL, t);
+				hits.set("hitface", CNull.NULL, t);
 			}
 
 			MCLocation blockHitPos = new BukkitMCLocation(end.toLocation(loc.getWorld()));
@@ -388,7 +394,7 @@ public class Functions {
 				}
 			}
 			hits.set("entities", hitEntities, t);
-			
+
 			return hits;
 		}
 
@@ -411,10 +417,12 @@ public class Functions {
 		public String docs() {
 			return "array {[player], [location], range, [raySize]} Returns an array of result data from a ray trace from the"
 					+ " player's eye location or the given location. Result array contains the following keys:"
-					+ " 'hitblock' is whether or not a block was hit; 'location' contains the location where the ray"
-					+ " trace ends; 'origin' contains the location where the ray trace starts (useful if you don't"
-					+ " specify a location manually); 'entities' contains an array of hit entities where each array"
-					+ " contains a 'location' key and 'uuid' key.";
+					+ " 'hitblock' is whether or not a block was hit;"
+					+ " 'hitface' is the block face that was hit (or null);"
+					+ " 'block' is the location of the block that was hit (or null);"
+					+ " 'location' contains the location where the ray trace ends;"
+					+ " 'origin' contains the location where the ray trace starts (useful if you don't specify a location);"
+					+ " 'entities' contains an array of hit entities where each array contains a 'location' key and 'uuid' key.";
 		}
 	}
 

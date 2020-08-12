@@ -3,6 +3,8 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Downloads
+[Spigot 1.16.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.3.0) (CommandHelper 3.3.4 latest snapshots)  
+[Spigot 1.16.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.2.0) (CommandHelper 3.3.4 latest snapshots)  
 [Spigot 1.15.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.1.0) (CommandHelper 3.3.4 latest snapshots)  
 [Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.4b) (CommandHelper 3.3.4 latest snapshots)  
 [Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.2) (CommandHelper 3.3.4 up to build 3776)  
@@ -47,7 +49,13 @@ Sets the amount of arrows in a player's model.
 Sets the amount of bee stingers in a player's model.
 
 ### ray_trace([playerName], [location], [range], [raySize])
-Returns an array of result data from a ray trace from the player's eye location or the given location. Result array contains the following keys: 'hitblock' is whether or not a block was hit; 'location' contains the location where the ray trace ends; 'origin' contains the location where the ray trace starts (useful if you don't specify a location manually); 'entities' contains an array of hit entities where each array contains a 'location' key and 'uuid' key.
+Returns an array of result data from a ray trace from the player's eye location or the given location. Result array contains the following keys:
+'hitblock' is whether or not a block was hit;
+'hitface' is the block face that was hit (or null);
+'block' is the location of the block that was hit (or null);
+'location' contains the location where the ray trace ends;
+'origin' contains the location where the ray trace starts (useful if you don't specify a location);
+'entities' contains an array of hit entities where each array contains a 'location' key and 'uuid' key.
 
 ### action_msg([playerName], message)
 Sends a message to the action bar, located right above the player's hotbar.
