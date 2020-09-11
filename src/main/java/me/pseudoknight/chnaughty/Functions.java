@@ -10,7 +10,12 @@ import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.ArgumentValidation;
 import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.ObjectGenerator;
+import com.laytonsmith.core.Optimizable;
+import com.laytonsmith.core.ParseTree;
 import com.laytonsmith.core.Static;
+import com.laytonsmith.core.compiler.CompilerEnvironment;
+import com.laytonsmith.core.compiler.CompilerWarning;
+import com.laytonsmith.core.compiler.FileOptions;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CDouble;
@@ -34,6 +39,7 @@ import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
 import com.laytonsmith.core.exceptions.CRE.CRERangeException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
+import com.laytonsmith.core.exceptions.ConfigCompileException;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
@@ -65,6 +71,8 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 public class Functions {
 	public static String docs() {
@@ -565,7 +573,7 @@ public class Functions {
 	}
 
 	@api
-	public static class get_attribute extends AbstractFunction {
+	public static class get_attribute extends AbstractFunction implements Optimizable {
 
 		public Class<? extends CREThrowable>[] thrown() {
 			return new Class[]{CREIllegalArgumentException.class};
@@ -633,7 +641,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "double {entity, attribute} Returns the generic attribute of the given mob. Available attributes:"
+			return "double {entity, attribute} (deprecated for entity_attribute_base()) Returns the generic attribute of the given mob. Available attributes:"
 					+ " attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor,"
 					+ " armortoughness, and luck. Not all mobs will have every attribute, in which case a"
 					+ " NullPointerException will be thrown.";
@@ -643,10 +651,22 @@ public class Functions {
 			return MSVersion.V3_3_1;
 		}
 
+		@Override
+		public Set<OptimizationOption> optimizationOptions() {
+			return EnumSet.of(OptimizationOption.OPTIMIZE_DYNAMIC);
+		}
+
+		@Override
+		public ParseTree optimizeDynamic(Target t, Environment env, Set<Class<? extends Environment.EnvironmentImpl>> envs, List<ParseTree> children, FileOptions fileOptions) throws ConfigCompileException, ConfigRuntimeException {
+			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions,
+					new CompilerWarning("get_attribute() in CHNaughty is deprecated for entity_attribute_base()", t, null));
+			return null;
+		}
+
 	}
 
 	@api
-	public static class set_attribute extends AbstractFunction {
+	public static class set_attribute extends AbstractFunction implements Optimizable {
 
 		public Class<? extends CREThrowable>[] thrown() {
 			return new Class[]{CREIllegalArgumentException.class,CRECastException.class};
@@ -714,7 +734,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {entity, attribute, value} Sets the generic attribute of the given mob. Available attributes:"
+			return "void {entity, attribute, value} (deprecated for set_entity_attribute_base()) Sets the generic attribute of the given mob. Available attributes:"
 					+ " attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor,"
 					+ " armortoughness, and luck. Not all mobs will have every attribute, in which case a"
 					+ " NullPointerException will be thrown.";
@@ -722,6 +742,18 @@ public class Functions {
 
 		public Version since() {
 			return MSVersion.V3_3_1;
+		}
+
+		@Override
+		public Set<Optimizable.OptimizationOption> optimizationOptions() {
+			return EnumSet.of(Optimizable.OptimizationOption.OPTIMIZE_DYNAMIC);
+		}
+
+		@Override
+		public ParseTree optimizeDynamic(Target t, Environment env, Set<Class<? extends Environment.EnvironmentImpl>> envs, List<ParseTree> children, FileOptions fileOptions) throws ConfigCompileException, ConfigRuntimeException {
+			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions,
+					new CompilerWarning("set_attribute() in CHNaughty is deprecated for set_entity_attribute_base()", t, null));
+			return null;
 		}
 
 	}

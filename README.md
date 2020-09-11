@@ -70,9 +70,11 @@ if(function_exists('action_msg')) {
 Returns an array of average ticks per second over 5, 10 and 15 minutes. eg. {19.9999999,19.99888567,19.56889299}
 
 ### get_attribute(entity UUID, attribute)
+(deprecated for entity_attribute_base()) 
 Returns a generic attribute's value as a double for the specified mob. Available attributes: attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor, armorToughness, and luck. Not all mobs will have every attribute, in which case a NullPointerException will be thrown.
 
 ### set_attribute(entity UUID, attribute, double)
+(deprecated for set_entity_attribute_base()) 
 Sets the generic attribute for the given mob. You can consult the Minecraft wiki for appropriate ranges.
 
 ```
