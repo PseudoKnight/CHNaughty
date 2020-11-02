@@ -11,32 +11,32 @@ import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.mojang.datafixers.util.Either;
-import net.minecraft.server.v1_16_R2.BlockPosition;
-import net.minecraft.server.v1_16_R2.BlockStateBoolean;
-import net.minecraft.server.v1_16_R2.ChatMessageType;
-import net.minecraft.server.v1_16_R2.EntityHuman;
-import net.minecraft.server.v1_16_R2.EntityPlayer;
-import net.minecraft.server.v1_16_R2.EnumHand;
-import net.minecraft.server.v1_16_R2.IBlockData;
-import net.minecraft.server.v1_16_R2.IChatBaseComponent;
-import net.minecraft.server.v1_16_R2.Items;
-import net.minecraft.server.v1_16_R2.PacketPlayOutAnimation;
-import net.minecraft.server.v1_16_R2.PacketPlayOutChat;
-import net.minecraft.server.v1_16_R2.PacketPlayOutGameStateChange;
-import net.minecraft.server.v1_16_R2.PacketPlayOutOpenBook;
-import net.minecraft.server.v1_16_R2.PlayerConnection;
-import net.minecraft.server.v1_16_R2.SystemUtils;
-import net.minecraft.server.v1_16_R2.TileEntity;
-import net.minecraft.server.v1_16_R2.TileEntitySign;
-import net.minecraft.server.v1_16_R2.Unit;
-import net.minecraft.server.v1_16_R2.World;
+import net.minecraft.server.v1_16_R3.BlockPosition;
+import net.minecraft.server.v1_16_R3.BlockStateBoolean;
+import net.minecraft.server.v1_16_R3.ChatMessageType;
+import net.minecraft.server.v1_16_R3.EntityHuman;
+import net.minecraft.server.v1_16_R3.EntityPlayer;
+import net.minecraft.server.v1_16_R3.EnumHand;
+import net.minecraft.server.v1_16_R3.IBlockData;
+import net.minecraft.server.v1_16_R3.IChatBaseComponent;
+import net.minecraft.server.v1_16_R3.Items;
+import net.minecraft.server.v1_16_R3.PacketPlayOutAnimation;
+import net.minecraft.server.v1_16_R3.PacketPlayOutChat;
+import net.minecraft.server.v1_16_R3.PacketPlayOutGameStateChange;
+import net.minecraft.server.v1_16_R3.PacketPlayOutOpenBook;
+import net.minecraft.server.v1_16_R3.PlayerConnection;
+import net.minecraft.server.v1_16_R3.SystemUtils;
+import net.minecraft.server.v1_16_R3.TileEntity;
+import net.minecraft.server.v1_16_R3.TileEntitySign;
+import net.minecraft.server.v1_16_R3.Unit;
+import net.minecraft.server.v1_16_R3.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftMetaBook;
-import org.bukkit.craftbukkit.v1_16_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftMetaBook;
+import org.bukkit.craftbukkit.v1_16_R3.util.CraftChatMessage;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
@@ -134,7 +134,7 @@ class Minecraft {
 		} catch (IllegalArgumentException ex) {
 			throw new CREIllegalArgumentException(ex.getMessage(), t);
 		}
-		net.minecraft.server.v1_16_R2.Item item;
+		net.minecraft.server.v1_16_R3.Item item;
 		try {
 			if(h == EnumHand.MAIN_HAND) {
 				item = player.getItemInMainHand().getItem();
