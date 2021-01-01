@@ -11,6 +11,7 @@ import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.mojang.datafixers.util.Either;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.server.v1_16_R3.BlockPosition;
 import net.minecraft.server.v1_16_R3.BlockStateBoolean;
 import net.minecraft.server.v1_16_R3.ChatMessageType;
@@ -35,13 +36,8 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftMetaBook;
-import org.bukkit.craftbukkit.v1_16_R3.util.CraftChatMessage;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 class Minecraft {
 	static final int VIEW_DISTANCE = Bukkit.getViewDistance() * 16;
@@ -97,22 +93,16 @@ class Minecraft {
 		if(bookmeta == null) {
 			throw new CRENullPointerException("Book meta is null. This shouldn't happen and may be a problem with the server.", t);
 		}
-		List<IChatBaseComponent> pageList = new ArrayList<>();
 		for(int i = 0; i < pages.size(); i++) {
 			String text = pages.get(i, t).val();
-			IChatBaseComponent component;
 			if(text.charAt(0) == '[' || text.charAt(0) == '{') {
 				try {
-					component = IChatBaseComponent.ChatSerializer.a(text);
-					pageList.add(component);
+					bookmeta.spigot().addPage(ComponentSerializer.parse(text));
 					continue;
 				} catch(IllegalStateException | JsonSyntaxException ex) {}
 			}
-			text = text.length() > 320 ? text.substring(0, 320) : text;
-			component = CraftChatMessage.fromString(text, true)[0];
-			pageList.add(component);
+			bookmeta.addPage(text);
 		}
-		((CraftMetaBook) bookmeta).pages = pageList;
 		bookmeta.setTitle(" ");
 		bookmeta.setAuthor(" ");
 		book.setItemMeta(bookmeta);
