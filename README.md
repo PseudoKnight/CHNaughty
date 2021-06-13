@@ -3,11 +3,12 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Downloads
-[Spigot 1.16.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.4.1) (CommandHelper 3.3.4 latest snapshots)  
-[Spigot 1.16.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.3.0) (CommandHelper 3.3.4 latest snapshots)  
-[Spigot 1.16.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.2.0) (CommandHelper 3.3.4 latest snapshots)  
-[Spigot 1.15.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.1.0) (CommandHelper 3.3.4 latest snapshots)  
-[Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.4b) (CommandHelper 3.3.4 latest snapshots)  
+[Spigot 1.17.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.5.0) (CommandHelper 3.3.5 latest snapshots)  
+[Spigot 1.16.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.4.1) (CommandHelper 3.3.4)  
+[Spigot 1.16.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.3.0) (CommandHelper 3.3.4)  
+[Spigot 1.16.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.2.0) (CommandHelper 3.3.4)  
+[Spigot 1.15.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.1.0) (CommandHelper 3.3.4)  
+[Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.4b) (CommandHelper 3.3.4)  
 [Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.2) (CommandHelper 3.3.4 up to build 3776)  
 [Spigot 1.14.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.1) (CommandHelper 3.3.4 up to build 3776)  
 [Spigot 1.13.2](https://letsbuild.net/jenkins/job/CHNaughty/10/) (CommandHelper 3.3.4 up to build 3776)  
@@ -40,8 +41,10 @@ Returns the player's ping to the server. This data is stored on the server, so t
 ### pswing_hand([playerName], [hand])
 Swing the player's hand in an attack animation. The hand parameter can be either main_hand (default) or off_hand.
 
-### set_psky([playerName], number, number)
-Sends a packet to the player to change their sky color.
+### set_psky([playerName], downFallOpacity, storminess)
+Sends a packet to the player to change their sky.
+As of 1.17 the first number changes the opacity of precipitation from 0.0 - 1.0.
+The second number changes the storminess of the sky while precipitating from 0.0 - 1.0.
 
 ### set_parrow_count([playerName], count)
 Sets the amount of arrows in a player's model.
@@ -69,17 +72,3 @@ if(function_exists('action_msg')) {
 
 ### tps()
 Returns an array of average ticks per second over 5, 10 and 15 minutes. eg. {19.9999999,19.99888567,19.56889299}
-
-### get_attribute(entity UUID, attribute)
-(deprecated for entity_attribute_base()) 
-Returns a generic attribute's value as a double for the specified mob. Available attributes: attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor, armorToughness, and luck. Not all mobs will have every attribute, in which case a NullPointerException will be thrown.
-
-### set_attribute(entity UUID, attribute, double)
-(deprecated for set_entity_attribute_base()) 
-Sets the generic attribute for the given mob. You can consult the Minecraft wiki for appropriate ranges.
-
-```
-bind(player_interact_entity, null, array('clicked': 'HORSE'), @event) {
-  set_attribute(@event['id'], 'movementSpeed', 0.3375); # set all horses to max natural speed
-}
-```

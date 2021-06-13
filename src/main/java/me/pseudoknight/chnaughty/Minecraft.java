@@ -12,30 +12,30 @@ import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.mojang.datafixers.util.Either;
 import net.md_5.bungee.chat.ComponentSerializer;
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.BlockStateBoolean;
-import net.minecraft.server.v1_16_R3.ChatMessageType;
-import net.minecraft.server.v1_16_R3.EntityHuman;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
-import net.minecraft.server.v1_16_R3.EnumHand;
-import net.minecraft.server.v1_16_R3.IBlockData;
-import net.minecraft.server.v1_16_R3.IChatBaseComponent;
-import net.minecraft.server.v1_16_R3.Items;
-import net.minecraft.server.v1_16_R3.PacketPlayOutAnimation;
-import net.minecraft.server.v1_16_R3.PacketPlayOutChat;
-import net.minecraft.server.v1_16_R3.PacketPlayOutGameStateChange;
-import net.minecraft.server.v1_16_R3.PacketPlayOutOpenBook;
-import net.minecraft.server.v1_16_R3.PlayerConnection;
-import net.minecraft.server.v1_16_R3.SystemUtils;
-import net.minecraft.server.v1_16_R3.TileEntity;
-import net.minecraft.server.v1_16_R3.TileEntitySign;
-import net.minecraft.server.v1_16_R3.Unit;
-import net.minecraft.server.v1_16_R3.World;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.network.chat.ChatMessageType;
+import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
+import net.minecraft.network.protocol.game.PacketPlayOutChat;
+import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
+import net.minecraft.network.protocol.game.PacketPlayOutOpenBook;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.util.Unit;
+import net.minecraft.world.level.block.state.properties.BlockStateBoolean;
+import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.TileEntity;
+import net.minecraft.world.level.block.entity.TileEntitySign;
+import net.minecraft.world.level.block.state.IBlockData;
+import net.minecraft.world.level.World;
+import net.minecraft.world.EnumHand;
+import net.minecraft.SystemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
@@ -43,7 +43,7 @@ class Minecraft {
 	static final int VIEW_DISTANCE = Bukkit.getViewDistance() * 16;
 
 	static PlayerConnection GetConnection(MCPlayer player) {
-		return ((CraftPlayer) player.getHandle()).getHandle().playerConnection;
+		return ((CraftPlayer) player.getHandle()).getHandle().b;
 	}
 
 	static IChatBaseComponent Serialize(String msg) {
@@ -52,7 +52,7 @@ class Minecraft {
 
 	static void SendActionBarMessage(MCPlayer player, String msg) {
 		GetConnection(player).sendPacket(
-				new PacketPlayOutChat(Serialize("{\"text\": \"" + msg + "\"}"), ChatMessageType.GAME_INFO, SystemUtils.b));
+				new PacketPlayOutChat(Serialize("{\"text\": \"" + msg + "\"}"), ChatMessageType.c, SystemUtils.b));
 	}
 
 	static void Sleep(MCPlayer p, MCLocation loc, Target t) {
@@ -70,17 +70,17 @@ class Minecraft {
 			player.getWorld().setTypeAndData(pos, blockData, 4);
 		}).ifLeft((bedresult) -> {
 			switch(bedresult) {
-				case NOT_POSSIBLE_HERE:
+				case a:
 					throw new CREException("It's not possible to sleep here.", t);
-				case NOT_POSSIBLE_NOW:
+				case b:
 					throw new CREException("It's not possible to sleep now.", t);
-				case TOO_FAR_AWAY:
+				case c:
 					throw new CREException("That bed is too far away.", t);
-				case OBSTRUCTED:
+				case d:
 					throw new CREException("That bed is obstructed.", t);
-				case OTHER_PROBLEM:
+				case e:
 					throw new CREException("Can't sleep for some reason.", t);
-				case NOT_SAFE:
+				case f:
 					throw new CREException("It's not safe to sleep.", t);
 			}
 		});
@@ -110,7 +110,7 @@ class Minecraft {
 		ItemStack currentItem = player.getInventory().getItemInMainHand();
 		player.getInventory().setItemInMainHand(book);
 		try {
-			player.getHandle().openBook(CraftItemStack.asNMSCopy(book), EnumHand.MAIN_HAND);
+			player.getHandle().openBook(CraftItemStack.asNMSCopy(book), EnumHand.a);
 		} finally {
 			player.getInventory().setItemInMainHand(currentItem);
 		}
@@ -124,9 +124,9 @@ class Minecraft {
 		} catch (IllegalArgumentException ex) {
 			throw new CREIllegalArgumentException(ex.getMessage(), t);
 		}
-		net.minecraft.server.v1_16_R3.Item item;
+		net.minecraft.world.item.Item item;
 		try {
-			if(h == EnumHand.MAIN_HAND) {
+			if(h == EnumHand.a) {
 				item = player.getItemInMainHand().getItem();
 			} else {
 				item = player.getItemInOffHand().getItem();
@@ -134,8 +134,8 @@ class Minecraft {
 		} catch (NullPointerException ex) {
 			throw new CRENullPointerException(ex.getMessage(), t);
 		}
-		if(item == Items.WRITTEN_BOOK) {
-			player.playerConnection.sendPacket(new PacketPlayOutOpenBook(h));
+		if(item == Items.rh) {
+			player.b.sendPacket(new PacketPlayOutOpenBook(h));
 		} else {
 			throw new CREIllegalArgumentException("No book in the given hand.", t);
 		}
@@ -148,7 +148,7 @@ class Minecraft {
 			throw new CRECastException("This location is not a sign.", t);
 		}
 		TileEntitySign sign = (TileEntitySign) te;
-		sign.isEditable = true;
+		sign.f = true;
 		((CraftPlayer) p.getHandle()).getHandle().openSign(sign);
 	}
 	
@@ -160,8 +160,8 @@ class Minecraft {
 			throw new CREFormatException("Expected main_hand or off_hand but got \"" + h + "\".", t);
 		}
 		EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-		int handVal = hand.equals(EnumHand.MAIN_HAND) ? 0 : 3;
-		player.playerConnection.sendPacket(new PacketPlayOutAnimation(player, handVal)); // send to player
+		int handVal = hand.equals(EnumHand.a) ? 0 : 3;
+		player.b.sendPacket(new PacketPlayOutAnimation(player, handVal)); // send to player
 	}
 	
 	static void SetSky(MCPlayer p, float a, float b) {

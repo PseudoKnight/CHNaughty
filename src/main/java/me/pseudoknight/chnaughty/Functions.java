@@ -10,12 +10,7 @@ import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.ArgumentValidation;
 import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.ObjectGenerator;
-import com.laytonsmith.core.Optimizable;
-import com.laytonsmith.core.ParseTree;
 import com.laytonsmith.core.Static;
-import com.laytonsmith.core.compiler.CompilerEnvironment;
-import com.laytonsmith.core.compiler.CompilerWarning;
-import com.laytonsmith.core.compiler.FileOptions;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CDouble;
@@ -35,44 +30,36 @@ import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CREIndexOverflowException;
 import com.laytonsmith.core.exceptions.CRE.CREInvalidWorldException;
 import com.laytonsmith.core.exceptions.CRE.CRELengthException;
-import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
 import com.laytonsmith.core.exceptions.CRE.CRERangeException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
-import com.laytonsmith.core.exceptions.ConfigCompileException;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
-import net.minecraft.server.v1_16_R3.AttributeModifiable;
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.ChunkCoordIntPair;
-import net.minecraft.server.v1_16_R3.Entity;
-import net.minecraft.server.v1_16_R3.EntityLiving;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
-import net.minecraft.server.v1_16_R3.EntitySize;
-import net.minecraft.server.v1_16_R3.TicketType;
-import net.minecraft.server.v1_16_R3.GenericAttributes;
-import net.minecraft.server.v1_16_R3.PacketPlayOutPosition;
-import net.minecraft.server.v1_16_R3.PlayerConnection;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.network.protocol.game.PacketPlayOutPosition;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySize;
+import net.minecraft.world.level.ChunkCoordIntPair;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
 
 public class Functions {
 	public static String docs() {
@@ -117,12 +104,12 @@ public class Functions {
 				} else if(pitch < -90.0) {
 					pitch = -90.0F;
 				}
-				entity.pitch = pitch;
-				entity.lastPitch = pitch;
+				entity.setXRot(pitch);
+				//entity.lastPitch = pitch;
 			}
 
-			entity.yaw = yaw;
-			entity.lastYaw = yaw;
+			entity.setYRot(yaw);
+			//entity.lastYaw = yaw;
 			entity.setHeadRotation(yaw);
 			return CVoid.VOID;
 		}
@@ -183,7 +170,7 @@ public class Functions {
 			if(player == null) {
 				throw new CREPlayerOfflineException("No online player by that name.", t);
 			}
-			PlayerConnection connection = player.getHandle().playerConnection;
+			PlayerConnection connection = player.getHandle().b;
 
 			MCLocation l;
 			if(!(args[args.length - 1] instanceof CArray)){
@@ -205,15 +192,15 @@ public class Functions {
 
 			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(x, y, z));
 
-			connection.player.getWorldServer().getChunkProvider().addTicket(TicketType.POST_TELEPORT, chunkcoordintpair, 1, connection.player.getId());
-			connection.player.stopRiding();
-			if (connection.player.isSleeping()) {
-				connection.player.wakeup(true, true);
+			connection.d().getWorldServer().getChunkProvider().addTicket(TicketType.g, chunkcoordintpair, 1, connection.d().getId());
+			connection.d().stopRiding();
+			if (connection.d().isSleeping()) {
+				connection.d().wakeup(true, true);
 			}
 			connection.a(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
 					PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-			connection.player.setHeadRotation(yaw);
+			connection.d().setHeadRotation(yaw);
 
 			return CVoid.VOID;
 		}
@@ -457,8 +444,7 @@ public class Functions {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
 			}
-			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			return new CInt(player.ping, t);
+			return new CInt(((Player) p.getHandle()).getPing(), t);
 		}
 
 		public String getName() {
@@ -568,192 +554,6 @@ public class Functions {
 
 		public Version since() {
 			return MSVersion.V3_3_1;
-		}
-
-	}
-
-	@api
-	public static class get_attribute extends AbstractFunction implements Optimizable {
-
-		public Class<? extends CREThrowable>[] thrown() {
-			return new Class[]{CREIllegalArgumentException.class};
-		}
-
-		public boolean isRestricted() {
-			return true;
-		}
-
-		public Boolean runAsync() {
-			return false;
-		}
-
-		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
-			AttributeModifiable attribute;
-			switch(args[1].val().toLowerCase()) {
-				case "attackdamage":
-					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE);
-					break;
-				case "followrange":
-					attribute = entity.getAttributeInstance(GenericAttributes.FOLLOW_RANGE);
-					break;
-				case "knockbackresistance":
-					attribute = entity.getAttributeInstance(GenericAttributes.KNOCKBACK_RESISTANCE);
-					break;
-				case "maxhealth":
-					attribute = entity.getAttributeInstance(GenericAttributes.MAX_HEALTH);
-					break;
-				case "flyingspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.FLYING_SPEED);
-					break;
-				case "movementspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
-					break;
-				case "attackspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_SPEED);
-					break;
-				case "armor":
-					attribute = entity.getAttributeInstance(GenericAttributes.ARMOR);
-					break;
-				case "armortoughness":
-					attribute = entity.getAttributeInstance(GenericAttributes.ARMOR_TOUGHNESS);
-					break;
-				case "luck":
-					attribute = entity.getAttributeInstance(GenericAttributes.LUCK);
-					break;
-				default:
-					throw new CREIllegalArgumentException("Unknown attribute.", t);
-			}
-			try {
-				return new CDouble(attribute.getValue(), t);
-			} catch (NullPointerException e) {
-				throw new CRENullPointerException("This mob does not have this attribute.", t);
-			}
-
-		}
-
-		public String getName() {
-			return "get_attribute";
-		}
-
-		public Integer[] numArgs() {
-			return new Integer[]{2};
-		}
-
-		public String docs() {
-			return "double {entity, attribute} (deprecated for entity_attribute_base()) Returns the generic attribute of the given mob. Available attributes:"
-					+ " attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor,"
-					+ " armortoughness, and luck. Not all mobs will have every attribute, in which case a"
-					+ " NullPointerException will be thrown.";
-		}
-
-		public Version since() {
-			return MSVersion.V3_3_1;
-		}
-
-		@Override
-		public Set<OptimizationOption> optimizationOptions() {
-			return EnumSet.of(OptimizationOption.OPTIMIZE_DYNAMIC);
-		}
-
-		@Override
-		public ParseTree optimizeDynamic(Target t, Environment env, Set<Class<? extends Environment.EnvironmentImpl>> envs, List<ParseTree> children, FileOptions fileOptions) throws ConfigCompileException, ConfigRuntimeException {
-			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions,
-					new CompilerWarning("get_attribute() in CHNaughty is deprecated for entity_attribute_base()", t, null));
-			return null;
-		}
-
-	}
-
-	@api
-	public static class set_attribute extends AbstractFunction implements Optimizable {
-
-		public Class<? extends CREThrowable>[] thrown() {
-			return new Class[]{CREIllegalArgumentException.class,CRECastException.class};
-		}
-
-		public boolean isRestricted() {
-			return true;
-		}
-
-		public Boolean runAsync() {
-			return false;
-		}
-
-		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			EntityLiving entity = ((CraftLivingEntity) Static.getLivingEntity(args[0], t).getHandle()).getHandle();
-			AttributeModifiable attribute;
-			switch(args[1].val().toLowerCase()){
-				case "attackdamage":
-					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_DAMAGE);
-					break;
-				case "followrange":
-					attribute = entity.getAttributeInstance(GenericAttributes.FOLLOW_RANGE);
-					break;
-				case "knockbackresistance":
-					attribute = entity.getAttributeInstance(GenericAttributes.KNOCKBACK_RESISTANCE);
-					break;
-				case "maxhealth":
-					attribute = entity.getAttributeInstance(GenericAttributes.MAX_HEALTH);
-					break;
-				case "flyingspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.FLYING_SPEED);
-					break;
-				case "movementspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED);
-					break;
-				case "attackspeed":
-					attribute = entity.getAttributeInstance(GenericAttributes.ATTACK_SPEED);
-					break;
-				case "armor":
-					attribute = entity.getAttributeInstance(GenericAttributes.ARMOR);
-					break;
-				case "armortoughness":
-					attribute = entity.getAttributeInstance(GenericAttributes.ARMOR_TOUGHNESS);
-					break;
-				case "luck":
-					attribute = entity.getAttributeInstance(GenericAttributes.LUCK);
-					break;
-				default:
-					throw new CREIllegalArgumentException("Unknown attribute.", t);
-			}
-			try {
-				attribute.setValue(ArgumentValidation.getDouble(args[2], t));
-			} catch (NullPointerException e) {
-				throw new CRENullPointerException("This mob does not have this attribute.", t);
-			}
-			return CVoid.VOID;
-		}
-
-		public String getName() {
-			return "set_attribute";
-		}
-
-		public Integer[] numArgs() {
-			return new Integer[]{3};
-		}
-
-		public String docs() {
-			return "void {entity, attribute, value} (deprecated for set_entity_attribute_base()) Sets the generic attribute of the given mob. Available attributes:"
-					+ " attackDamage, followRange, knockbackResistance, movementSpeed, maxHealth, attackSpeed, armor,"
-					+ " armortoughness, and luck. Not all mobs will have every attribute, in which case a"
-					+ " NullPointerException will be thrown.";
-		}
-
-		public Version since() {
-			return MSVersion.V3_3_1;
-		}
-
-		@Override
-		public Set<Optimizable.OptimizationOption> optimizationOptions() {
-			return EnumSet.of(Optimizable.OptimizationOption.OPTIMIZE_DYNAMIC);
-		}
-
-		@Override
-		public ParseTree optimizeDynamic(Target t, Environment env, Set<Class<? extends Environment.EnvironmentImpl>> envs, List<ParseTree> children, FileOptions fileOptions) throws ConfigCompileException, ConfigRuntimeException {
-			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions,
-					new CompilerWarning("set_attribute() in CHNaughty is deprecated for set_entity_attribute_base()", t, null));
-			return null;
 		}
 
 	}
@@ -971,7 +771,7 @@ public class Functions {
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.q(stingers);
+			player.r(stingers);
 			return CVoid.VOID;
 		}
 
@@ -1054,7 +854,9 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], number, number} Sends a packet to the player to change their sky color.";
+			return "void {[playerName], downFallOpacity, storminess} Sends a packet to the player to change their sky."
+					+ " As of 1.17 the first number changes the opacity of precipitation from 0.0 - 1.0."
+					+ " The second number changes the storminess of the skyt while precipitating from 0.0 - 1.0.";
 		}
 
 		public Integer[] numArgs() {
@@ -1121,7 +923,7 @@ public class Functions {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 			float width = ArgumentValidation.getDouble32(args[1], t);
 			float height = ArgumentValidation.getDouble32(args[2], t);
-			ReflectionUtils.set(Entity.class, entity, "size", EntitySize.b(width, height));
+			ReflectionUtils.set(Entity.class, entity, "aW", EntitySize.b(width, height));
 			return CVoid.VOID;
 		}
 

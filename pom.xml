@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.pseudoknight</groupId>
     <artifactId>CHNaughty</artifactId>
-    <version>4.4.1</version>
+    <version>4.5.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,11 +14,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.8.1</version>
                 <configuration>
                     <showDeprecation>true</showDeprecation>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>16</release>
                     <compilerArgument>-XDignore.symbol.file</compilerArgument>
                 </configuration>
             </plugin>
@@ -39,13 +38,13 @@
                     </archive>
                 </configuration>
                 
-                <version>2.4</version>
+                <version>3.2.0</version>
             </plugin>
             
             <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
-                <version>2.2.4</version>
+                <version>5.0-jdk8-rc1</version>
         
                 <executions>
                     <execution>
@@ -70,7 +69,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
+                <version>3.0.0</version>
         
                 <executions>
                     <execution>
@@ -109,12 +108,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.16.4-R0.1-SNAPSHOT</version>
+            <version>1.17-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>commandhelper</artifactId>
-            <version>3.3.4-SNAPSHOT</version>
+            <version>3.3.5-SNAPSHOT</version>
+            <classifier>full</classifier>
         </dependency>
     </dependencies>
 </project>
