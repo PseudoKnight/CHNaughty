@@ -3,14 +3,12 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Downloads
-[Spigot 1.17.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.5.0) (CommandHelper 3.3.5 latest snapshots)  
-[Spigot 1.16.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.4.1) (CommandHelper 3.3.4)  
-[Spigot 1.16.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.3.0) (CommandHelper 3.3.4)  
+[Spigot 1.17.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.5.1) (CommandHelper 3.3.5)  
+[Spigot 1.16.5](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.4.1) (CommandHelper 3.3.4)  
 [Spigot 1.16.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.2.0) (CommandHelper 3.3.4)  
 [Spigot 1.15.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.1.0) (CommandHelper 3.3.4)  
 [Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.4b) (CommandHelper 3.3.4)  
 [Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.2) (CommandHelper 3.3.4 up to build 3776)  
-[Spigot 1.14.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.1) (CommandHelper 3.3.4 up to build 3776)  
 [Spigot 1.13.2](https://letsbuild.net/jenkins/job/CHNaughty/10/) (CommandHelper 3.3.4 up to build 3776)  
 [Spigot 1.13.2](https://letsbuild.net/jenkins/job/CHNaughty/8/) (CommandHelper 3.3.3)  
 [Spigot 1.12.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.9.0) (CommandHelper 3.3.2)  
@@ -46,8 +44,9 @@ Sends a packet to the player to change their sky.
 As of 1.17 the first number changes the opacity of precipitation from 0.0 - 1.0.
 The second number changes the storminess of the sky while precipitating from 0.0 - 1.0.
 
-### set_parrow_count([playerName], count)
+### set_parrow_count(count | player, count, [ticks])
 Sets the amount of arrows in a player's model.
+Optional number of ticks the arrow count will persist until arrows start despawning again. (default: 20 * (30 - count))
 
 ### set_pstinger_count([playerName], count)
 Sets the amount of bee stingers in a player's model.

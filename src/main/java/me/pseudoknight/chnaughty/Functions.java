@@ -410,7 +410,7 @@ public class Functions {
 
 		@Override
 		public String docs() {
-			return "array {[player], [location], range, [raySize]} Returns an array of result data from a ray trace from the"
+			return "array {[player], [location], [range], [raySize]} Returns an array of result data from a ray trace from the"
 					+ " player's eye location or the given location. Result array contains the following keys:"
 					+ " 'hitblock' is whether or not a block was hit;"
 					+ " 'hitface' is the block face that was hit (or null);"
@@ -712,16 +712,25 @@ public class Functions {
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
 			int arrowCount;
-			if(args.length == 2){
-				p = Static.GetPlayer(args[0].val(), t);
+			int ticks = -1;
+
+			if(args.length > 1) {
+				p = Static.GetPlayer(args[0], t);
 				arrowCount = ArgumentValidation.getInt32(args[1], t);
+				if (args.length > 2) {
+					ticks = ArgumentValidation.getInt32(args[2], t);
+				}
 			} else {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
 				arrowCount = ArgumentValidation.getInt32(args[0], t);
 			}
-			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.setArrowCount(arrowCount);
+
+			Player player = (Player) p.getHandle();
+			player.setArrowsInBody(arrowCount);
+			if(ticks > -1) {
+				player.setArrowCooldown(ticks);
+			}
 			return CVoid.VOID;
 		}
 
@@ -730,11 +739,13 @@ public class Functions {
 		}
 
 		public Integer[] numArgs() {
-			return new Integer[]{1, 2};
+			return new Integer[]{1, 2, 3};
 		}
 
 		public String docs() {
-			return "void {[playerName], count} Sets the amount of arrows in a player's model.";
+			return "void {count | player, count, [ticks]} Sets the amount of arrows in a player's model."
+					+ " Optional number of ticks the arrow count will persist until arrows start despawning again."
+					+ " (default: 20 * (30 - count))";
 		}
 
 		public Version since() {
