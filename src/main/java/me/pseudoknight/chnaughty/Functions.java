@@ -48,12 +48,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -104,13 +104,13 @@ public class Functions {
 				} else if(pitch < -90.0) {
 					pitch = -90.0F;
 				}
-				entity.setXRot(pitch);
+				entity.p(pitch);
 				//entity.lastPitch = pitch;
 			}
 
-			entity.setYRot(yaw);
+			entity.o(yaw);
 			//entity.lastYaw = yaw;
-			entity.setHeadRotation(yaw);
+			entity.l(yaw);
 			return CVoid.VOID;
 		}
 
@@ -192,15 +192,15 @@ public class Functions {
 
 			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(x, y, z));
 
-			connection.d().getWorldServer().getChunkProvider().addTicket(TicketType.g, chunkcoordintpair, 1, connection.d().getId());
-			connection.d().stopRiding();
-			if (connection.d().isSleeping()) {
-				connection.d().wakeup(true, true);
+			connection.d().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.d().ae());
+			connection.d().p();
+			if (connection.d().fb()) {
+				connection.d().a(true, true);
 			}
-			connection.a(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
+			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
 					PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-			connection.d().setHeadRotation(yaw);
+			connection.d().l(yaw);
 
 			return CVoid.VOID;
 		}

@@ -11,12 +11,9 @@ import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
 import com.laytonsmith.core.exceptions.CRE.CRENullPointerException;
 import com.mojang.datafixers.util.Either;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.core.BlockPosition;
-import net.minecraft.network.chat.ChatMessageType;
-import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
-import net.minecraft.network.protocol.game.PacketPlayOutChat;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import net.minecraft.network.protocol.game.PacketPlayOutOpenBook;
 import net.minecraft.server.level.EntityPlayer;
@@ -30,12 +27,12 @@ import net.minecraft.world.level.block.entity.TileEntitySign;
 import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.World;
 import net.minecraft.world.EnumHand;
-import net.minecraft.SystemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
@@ -46,13 +43,9 @@ class Minecraft {
 		return ((CraftPlayer) player.getHandle()).getHandle().b;
 	}
 
-	static IChatBaseComponent Serialize(String msg) {
-		return IChatBaseComponent.ChatSerializer.a(msg);
-	}
-
 	static void SendActionBarMessage(MCPlayer player, String msg) {
-		GetConnection(player).sendPacket(
-				new PacketPlayOutChat(Serialize("{\"text\": \"" + msg + "\"}"), ChatMessageType.c, SystemUtils.b));
+		BaseComponent txt = new net.md_5.bungee.api.chat.TextComponent(msg);
+		((Player) player.getHandle()).spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, txt);
 	}
 
 	static void Sleep(MCPlayer p, MCLocation loc, Target t) {
@@ -60,14 +53,14 @@ class Minecraft {
 		BlockPosition pos = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		Either<EntityHuman.EnumBedResult, Unit> result;
 		try {
-			result = player.sleep(pos);
+			result = player.startSleepInBed(pos, false);
 		} catch(IllegalArgumentException ex) {
 			throw new CREException("That is not a bed.", t);
 		}
 		result.ifRight((unit) -> {
-			IBlockData blockData = player.getWorld().getType(pos);
-			blockData = blockData.set(BlockStateBoolean.of("occupied"), true);
-			player.getWorld().setTypeAndData(pos, blockData, 4);
+			IBlockData blockData = player.cA().a_(pos);
+			blockData = blockData.a(BlockStateBoolean.a("occupied"), true);
+			player.cA().a(pos, blockData, 4);
 		}).ifLeft((bedresult) -> {
 			switch(bedresult) {
 				case a:
@@ -110,7 +103,7 @@ class Minecraft {
 		ItemStack currentItem = player.getInventory().getItemInMainHand();
 		player.getInventory().setItemInMainHand(book);
 		try {
-			player.getHandle().openBook(CraftItemStack.asNMSCopy(book), EnumHand.a);
+			player.getHandle().a(CraftItemStack.asNMSCopy(book), EnumHand.a);
 		} finally {
 			player.getInventory().setItemInMainHand(currentItem);
 		}
@@ -126,16 +119,12 @@ class Minecraft {
 		}
 		net.minecraft.world.item.Item item;
 		try {
-			if(h == EnumHand.a) {
-				item = player.getItemInMainHand().getItem();
-			} else {
-				item = player.getItemInOffHand().getItem();
-			}
+			item = player.b(h).c();
 		} catch (NullPointerException ex) {
 			throw new CRENullPointerException(ex.getMessage(), t);
 		}
 		if(item == Items.rh) {
-			player.b.sendPacket(new PacketPlayOutOpenBook(h));
+			player.b.a(new PacketPlayOutOpenBook(h));
 		} else {
 			throw new CREIllegalArgumentException("No book in the given hand.", t);
 		}
@@ -143,30 +132,29 @@ class Minecraft {
 
 	static void OpenSign(MCPlayer p, MCLocation signLoc, Target t) {
 		World w = ((CraftWorld) signLoc.getWorld().getHandle()).getHandle();
-		TileEntity te = w.getTileEntity(new BlockPosition(signLoc.getBlockX(), signLoc.getBlockY(), signLoc.getBlockZ()));
+		TileEntity te = w.getBlockEntity(new BlockPosition(signLoc.getBlockX(), signLoc.getBlockY(), signLoc.getBlockZ()), true);
 		if(!(te instanceof TileEntitySign)) {
 			throw new CRECastException("This location is not a sign.", t);
 		}
 		TileEntitySign sign = (TileEntitySign) te;
 		sign.f = true;
-		((CraftPlayer) p.getHandle()).getHandle().openSign(sign);
+		((CraftPlayer) p.getHandle()).getHandle().a(sign);
 	}
 	
 	static void SwingHand(MCPlayer p, String h, Target t) {
-		EnumHand hand;
-		try {
-			hand = EnumHand.valueOf(h);
-		} catch(IllegalArgumentException ex) {
+		Player player = ((Player) p.getHandle());
+		if(h.isEmpty() || h.equals("MAIN_HAND")) {
+			player.swingMainHand();
+		} else if(h.equals("OFF_HAND")) {
+			player.swingOffHand();
+		} else {
 			throw new CREFormatException("Expected main_hand or off_hand but got \"" + h + "\".", t);
 		}
-		EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-		int handVal = hand.equals(EnumHand.a) ? 0 : 3;
-		player.b.sendPacket(new PacketPlayOutAnimation(player, handVal)); // send to player
 	}
 	
 	static void SetSky(MCPlayer p, float a, float b) {
 		PlayerConnection conn = GetConnection(p);
-		conn.sendPacket(new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.h, a));
-		conn.sendPacket(new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.i, b));
+		conn.a(new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.h, a));
+		conn.a(new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.i, b));
 	}
 }
