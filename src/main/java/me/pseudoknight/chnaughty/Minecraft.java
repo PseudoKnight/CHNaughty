@@ -88,7 +88,7 @@ class Minecraft {
 		}
 		for(int i = 0; i < pages.size(); i++) {
 			String text = pages.get(i, t).val();
-			if(text.charAt(0) == '[' || text.charAt(0) == '{') {
+			if(text.length() > 0 && (text.charAt(0) == '[' || text.charAt(0) == '{')) {
 				try {
 					bookmeta.spigot().addPage(ComponentSerializer.parse(text));
 					continue;
