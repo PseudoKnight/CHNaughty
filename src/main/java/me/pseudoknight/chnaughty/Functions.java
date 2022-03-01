@@ -782,7 +782,7 @@ public class Functions {
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.r(stingers);
+			player.q(stingers);
 			return CVoid.VOID;
 		}
 
@@ -934,7 +934,7 @@ public class Functions {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 			float width = ArgumentValidation.getDouble32(args[1], t);
 			float height = ArgumentValidation.getDouble32(args[2], t);
-			ReflectionUtils.set(Entity.class, entity, "aW", EntitySize.b(width, height));
+			ReflectionUtils.set(Entity.class, entity, "aY", EntitySize.b(width, height));
 			return CVoid.VOID;
 		}
 

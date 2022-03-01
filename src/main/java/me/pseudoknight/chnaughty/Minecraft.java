@@ -19,12 +19,10 @@ import net.minecraft.network.protocol.game.PacketPlayOutOpenBook;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.util.Unit;
-import net.minecraft.world.level.block.state.properties.BlockStateBoolean;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.TileEntity;
 import net.minecraft.world.level.block.entity.TileEntitySign;
-import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.World;
 import net.minecraft.world.EnumHand;
 import org.bukkit.Bukkit;
@@ -57,11 +55,7 @@ class Minecraft {
 		} catch(IllegalArgumentException ex) {
 			throw new CREException("That is not a bed.", t);
 		}
-		result.ifRight((unit) -> {
-			IBlockData blockData = player.cA().a_(pos);
-			blockData = blockData.a(BlockStateBoolean.a("occupied"), true);
-			player.cA().a(pos, blockData, 4);
-		}).ifLeft((bedresult) -> {
+		result.ifLeft((bedresult) -> {
 			switch(bedresult) {
 				case a:
 					throw new CREException("It's not possible to sleep here.", t);
