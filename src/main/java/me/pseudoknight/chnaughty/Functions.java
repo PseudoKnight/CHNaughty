@@ -245,15 +245,23 @@ public class Functions {
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
 			MCLocation loc;
-			if(args.length == 2){
+			boolean force = false;
+			if(args.length > 1){
 				p = Static.GetPlayer(args[0].val(), t);
 				loc = ObjectGenerator.GetGenerator().location(args[1], p.getWorld(), t);
+				if(args.length == 3) {
+					force = ArgumentValidation.getBooleanObject(args[2], t);
+				}
 			} else {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
 				loc = ObjectGenerator.GetGenerator().location(args[0], p.getWorld(), t);
 			}
-			Minecraft.Sleep(p, loc, t);
+			if(force) {
+				((Player) p.getHandle()).sleep((Location) loc.getHandle(), true);
+			} else {
+				Minecraft.Sleep(p, loc, t);
+			}
 			return CVoid.VOID;
 		}
 
@@ -262,12 +270,15 @@ public class Functions {
 		}
 
 		public Integer[] numArgs() {
-			return new Integer[]{1, 2};
+			return new Integer[]{1, 2, 3};
 		}
 
 		public String docs() {
-			return "void {[playerName], location} Sets the player sleeping at the specified bed location. Throws"
-					+ " an exception when unsuccessful.";
+			return "void {[playerName], location, [force]} Sets the player sleeping at the specified bed location."
+					+ " Optionally force sleeping even if player normally wouldn't be able to."
+					+ " If not forced, it will throws an exception when unsuccessful."
+					+ " The following conditions must be met for a player to sleep: the location must be a bed, the player must be near it,"
+					+ " it must not be obstructed, it must be night and there must not be hostile mobs nearby.";
 		}
 
 		public Version since() {
