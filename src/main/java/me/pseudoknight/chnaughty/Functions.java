@@ -1,5 +1,6 @@
 package me.pseudoknight.chnaughty;
 
+import com.google.gson.JsonSyntaxException;
 import com.laytonsmith.PureUtilities.Common.ReflectionUtils;
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.abstraction.MCCommandSender;
@@ -22,20 +23,12 @@ import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
-import com.laytonsmith.core.exceptions.CRE.CREBadEntityException;
-import com.laytonsmith.core.exceptions.CRE.CRECastException;
-import com.laytonsmith.core.exceptions.CRE.CREException;
-import com.laytonsmith.core.exceptions.CRE.CREFormatException;
-import com.laytonsmith.core.exceptions.CRE.CREIllegalArgumentException;
-import com.laytonsmith.core.exceptions.CRE.CREIndexOverflowException;
-import com.laytonsmith.core.exceptions.CRE.CREInvalidWorldException;
-import com.laytonsmith.core.exceptions.CRE.CRELengthException;
-import com.laytonsmith.core.exceptions.CRE.CREPlayerOfflineException;
-import com.laytonsmith.core.exceptions.CRE.CRERangeException;
-import com.laytonsmith.core.exceptions.CRE.CREThrowable;
+import com.laytonsmith.core.exceptions.CRE.*;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
@@ -47,13 +40,18 @@ import net.minecraft.world.level.ChunkCoordIntPair;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
+import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R2.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -87,7 +85,8 @@ public class Functions {
 
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
-			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
+			Entity entity = Minecraft.GetEntity(Static.getEntity(args[0], t));
+
 
 			float yaw = (float) ArgumentValidation.getDouble(args[1], t);
 			yaw %= 360.0;
@@ -104,13 +103,13 @@ public class Functions {
 				} else if(pitch < -90.0) {
 					pitch = -90.0F;
 				}
-				entity.p(pitch);
+				entity.p(pitch); // mapped setXRot
 				//entity.lastPitch = pitch;
 			}
 
-			entity.o(yaw);
+			entity.o(yaw); // mapped setYRot
 			//entity.lastYaw = yaw;
-			entity.l(yaw);
+			entity.l(yaw); // mapped setHeadRotation
 			return CVoid.VOID;
 		}
 
@@ -192,15 +191,16 @@ public class Functions {
 
 			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(x, y, z));
 
-			connection.d().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.d().ae());
-			connection.d().p();
-			if (connection.d().fb()) {
-				connection.d().a(true, true);
+			// mapped according to vanilla teleport command
+			connection.e().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.e().ae());
+			player.eject();
+			if (player.isSleeping()) {
+				player.wakeup(true);
 			}
 			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
 					PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-			connection.d().l(yaw);
+			connection.e().l(yaw);
 
 			return CVoid.VOID;
 		}
@@ -505,7 +505,8 @@ public class Functions {
 				message = args[0].val();
 			}
 			MCPlayer player = Static.GetPlayer(name, t);
-			Minecraft.SendActionBarMessage(player, message);
+			BaseComponent txt = new net.md_5.bungee.api.chat.TextComponent(message);
+			((Player) player.getHandle()).spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, txt);
 			return CVoid.VOID;
 		}
 
@@ -595,8 +596,26 @@ public class Functions {
 				Static.AssertPlayerNonNull(player, t);
 				data = args[0];
 			}
-			if(data instanceof CArray) {
-				Minecraft.OpenBook(player, (CArray) data, t);
+			if(data instanceof CArray pages) {
+				ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+				BookMeta bookmeta = (BookMeta) book.getItemMeta();
+				if(bookmeta == null) {
+					throw new CRENullPointerException("Book meta is null. This shouldn't happen and may be a problem with the server.", t);
+				}
+				for(int i = 0; i < pages.size(); i++) {
+					String text = pages.get(i, t).val();
+					if(text.length() > 0 && (text.charAt(0) == '[' || text.charAt(0) == '{')) {
+						try {
+							bookmeta.spigot().addPage(ComponentSerializer.parse(text));
+							continue;
+						} catch(IllegalStateException | JsonSyntaxException ignored) {}
+					}
+					bookmeta.addPage(text);
+				}
+				bookmeta.setTitle(" ");
+				bookmeta.setAuthor(" ");
+				book.setItemMeta(bookmeta);
+				((Player) player.getHandle()).openBook(book);
 			} else {
 				Minecraft.OpenBook(player, data.val(), t);
 			}
@@ -616,7 +635,7 @@ public class Functions {
 					+ " Accepts an array of pages or a hand that has a book to open."
 					+ " Each page can be either JSON or a plain text. If the JSON is not formatted correctly, "
 					+ " it will fall back to string output per page."
-					+ " If given a hand and there's no written book in it, nothing will happen.";
+					+ " Throws IllegalArgumentException if no written book resides in the given hand.";
 		}
 
 		public Version since() {
@@ -637,7 +656,8 @@ public class Functions {
 
 		public String docs() {
 			return "void {[player], location, [lines]} Opens a sign editor for the given sign location. Lines must"
-					+ " be an array with 4 values or null. If not provided, it'll use the lines from the given sign.";
+					+ " be an array with 4 values or null. If not provided, it'll use the lines from the given sign."
+					+ " Throws CastException if not a sign block.";
 		}
 
 		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
@@ -679,9 +699,16 @@ public class Functions {
 				}
 				player.sendSignTextChange(signLoc, lines);
 			}
-			
-			Minecraft.OpenSign(player, signLoc, t);
 
+			BlockState state = ((Location) signLoc.getHandle()).getBlock().getState();
+			if(!(state instanceof Sign)) {
+				throw new CRECastException("This location is not a sign.", t);
+			}
+			try {
+				((Player) player.getHandle()).openSign((Sign) state);
+			} catch (IllegalArgumentException ex) {
+				throw new CREInvalidWorldException("Cannot open sign in another world", t);
+			}
 			return CVoid.VOID;
 		}
 
@@ -793,7 +820,7 @@ public class Functions {
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.q(stingers);
+			player.q(stingers); // mapped below EntityLiving.setArrowCount
 			return CVoid.VOID;
 		}
 
@@ -846,7 +873,14 @@ public class Functions {
 					hand = args[0].val().toUpperCase();
 				}
 			}
-			Minecraft.SwingHand(p, hand, t);
+			Player player = ((Player) p.getHandle());
+			if(hand.isEmpty() || hand.equals("MAIN_HAND")) {
+				player.swingMainHand();
+			} else if(hand.equals("OFF_HAND")) {
+				player.swingOffHand();
+			} else {
+				throw new CREFormatException("Expected main_hand or off_hand but got \"" + hand + "\".", t);
+			}
 			return CVoid.VOID;
 		}
 
@@ -945,7 +979,8 @@ public class Functions {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 			float width = ArgumentValidation.getDouble32(args[1], t);
 			float height = ArgumentValidation.getDouble32(args[2], t);
-			ReflectionUtils.set(Entity.class, entity, "aY", EntitySize.b(width, height));
+			// mapped to EntitySize field
+			ReflectionUtils.set(Entity.class, entity, "aZ", EntitySize.b(width, height));
 			return CVoid.VOID;
 		}
 

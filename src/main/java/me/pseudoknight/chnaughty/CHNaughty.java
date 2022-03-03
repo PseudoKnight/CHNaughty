@@ -8,7 +8,7 @@ import com.laytonsmith.core.extensions.MSExtension;
 @MSExtension("CHNaughty")
 public class CHNaughty extends AbstractExtension {
 
-	private static final Version VERSION = new SimpleVersion(4, 6, 1);
+	private static final Version VERSION = new SimpleVersion(4, 7, 0);
 
 	public Version getVersion() {
 		return VERSION;
