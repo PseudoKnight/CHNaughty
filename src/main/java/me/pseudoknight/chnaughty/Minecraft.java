@@ -19,8 +19,8 @@ import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.EnumHand;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 
 class Minecraft {
 	static final int VIEW_DISTANCE = Bukkit.getViewDistance() * 16;
@@ -72,7 +72,7 @@ class Minecraft {
 		} catch (NullPointerException ex) {
 			throw new CRENullPointerException(ex.getMessage(), t);
 		}
-		if(item == Items.rh) { // mapped written_book
+		if(item == Items.rY) { // mapped written_book
 			player.b.a(new PacketPlayOutOpenBook(h)); // mapped PlayerConnection.sendPacket
 		} else {
 			throw new CREIllegalArgumentException("No book in the given hand.", t);

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.pseudoknight</groupId>
     <artifactId>CHNaughty</artifactId>
-    <version>4.7.0</version>
+    <version>4.8.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -108,13 +108,8 @@
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <version>1.19-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.mojang</groupId>

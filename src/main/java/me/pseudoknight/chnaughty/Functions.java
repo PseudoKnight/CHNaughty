@@ -44,12 +44,11 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftEntity;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.craftbukkit.v1_19_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.util.BoundingBox;
@@ -109,7 +108,7 @@ public class Functions {
 
 			entity.o(yaw); // mapped setYRot
 			//entity.lastYaw = yaw;
-			entity.l(yaw); // mapped setHeadRotation
+			entity.l(yaw); // mapped setYHeadRot
 			return CVoid.VOID;
 		}
 
@@ -820,7 +819,7 @@ public class Functions {
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.q(stingers); // mapped below EntityLiving.setArrowCount
+			player.q(stingers); // mapped below EntityLiving.setStingerCount
 			return CVoid.VOID;
 		}
 

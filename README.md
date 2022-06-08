@@ -3,6 +3,7 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Downloads
+[Spigot 1.19.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.8.0) (CommandHelper 3.3.5)  
 [Spigot 1.18.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.7.0) (CommandHelper 3.3.5)  
 [Spigot 1.18.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.6.1) (CommandHelper 3.3.5)  
 [Spigot 1.17.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.5.1) (CommandHelper 3.3.5)  
