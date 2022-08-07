@@ -192,7 +192,7 @@ public class Functions {
 			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(x, y, z));
 
 			// mapped according to vanilla teleport command
-			connection.e().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.e().ae());
+			connection.f().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.f().ae());
 			player.eject();
 			if (player.isSleeping()) {
 				player.wakeup(true);
@@ -200,7 +200,7 @@ public class Functions {
 			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
 					PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-			connection.e().l(yaw);
+			connection.f().l(yaw);
 
 			return CVoid.VOID;
 		}
