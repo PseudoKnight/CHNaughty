@@ -1,6 +1,5 @@
 package me.pseudoknight.chnaughty;
 
-import com.google.gson.JsonSyntaxException;
 import com.laytonsmith.PureUtilities.Common.ReflectionUtils;
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.abstraction.MCCommandSender;
@@ -27,8 +26,6 @@ import com.laytonsmith.core.exceptions.CRE.*;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
@@ -40,7 +37,6 @@ import net.minecraft.world.level.ChunkCoordIntPair;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -50,8 +46,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -505,8 +499,7 @@ public class Functions {
 				message = args[0].val();
 			}
 			MCPlayer player = Static.GetPlayer(name, t);
-			BaseComponent txt = new net.md_5.bungee.api.chat.TextComponent(message);
-			((Player) player.getHandle()).spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, txt);
+			Minecraft.ActionMsg(player, message);
 			return CVoid.VOID;
 		}
 
@@ -596,29 +589,7 @@ public class Functions {
 				Static.AssertPlayerNonNull(player, t);
 				data = args[0];
 			}
-			if(data instanceof CArray pages) {
-				ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-				BookMeta bookmeta = (BookMeta) book.getItemMeta();
-				if(bookmeta == null) {
-					throw new CRENullPointerException("Book meta is null. This shouldn't happen and may be a problem with the server.", t);
-				}
-				for(int i = 0; i < pages.size(); i++) {
-					String text = pages.get(i, t).val();
-					if(text.length() > 0 && (text.charAt(0) == '[' || text.charAt(0) == '{')) {
-						try {
-							bookmeta.spigot().addPage(ComponentSerializer.parse(text));
-							continue;
-						} catch(IllegalStateException | JsonSyntaxException ignored) {}
-					}
-					bookmeta.addPage(text);
-				}
-				bookmeta.setTitle(" ");
-				bookmeta.setAuthor(" ");
-				book.setItemMeta(bookmeta);
-				((Player) player.getHandle()).openBook(book);
-			} else {
-				Minecraft.OpenBook(player, data.val(), t);
-			}
+			Minecraft.OpenBook(player, data, t);
 			return CVoid.VOID;
 		}
 
