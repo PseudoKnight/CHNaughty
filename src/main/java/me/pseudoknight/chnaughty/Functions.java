@@ -40,12 +40,12 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_19_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_19_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -97,11 +97,11 @@ public class Functions {
 				} else if(pitch < -90.0) {
 					pitch = -90.0F;
 				}
-				entity.p(pitch); // mapped setXRot
+				entity.q(pitch); // mapped setXRot
 				//entity.lastPitch = pitch;
 			}
 
-			entity.o(yaw); // mapped setYRot
+			entity.p(yaw); // mapped setYRot, modifies field that getBukkitYaw returns
 			//entity.lastYaw = yaw;
 			entity.l(yaw); // mapped setYHeadRot
 			return CVoid.VOID;
@@ -186,7 +186,8 @@ public class Functions {
 			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(x, y, z));
 
 			// mapped according to vanilla teleport command
-			connection.f().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.f().ae());
+			// EntityPlayer, WorldServer, ChunkProviderServer
+			connection.e().y().k().a(TicketType.g, chunkcoordintpair, 1, connection.e().ah());
 			player.eject();
 			if (player.isSleeping()) {
 				player.wakeup(true);
@@ -194,7 +195,7 @@ public class Functions {
 			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
 					PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-			connection.f().l(yaw);
+			connection.e().l(yaw);
 
 			return CVoid.VOID;
 		}
