@@ -27,12 +27,12 @@ import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
 import net.minecraft.core.BlockPosition;
-import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySize;
+import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.ChunkCoordIntPair;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
@@ -40,12 +40,12 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_19_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -97,13 +97,11 @@ public class Functions {
 				} else if(pitch < -90.0) {
 					pitch = -90.0F;
 				}
-				entity.q(pitch); // mapped setXRot
-				//entity.lastPitch = pitch;
+				entity.e(pitch); // mapped setXRot
 			}
 
-			entity.p(yaw); // mapped setYRot, modifies field that getBukkitYaw returns
-			//entity.lastYaw = yaw;
-			entity.l(yaw); // mapped setYHeadRot
+			entity.f(yaw); // mapped setYRot, modifies field that getBukkitYaw returns
+			entity.r(yaw); // mapped setYHeadRot
 			return CVoid.VOID;
 		}
 
@@ -183,19 +181,18 @@ public class Functions {
 			float yaw = l.getYaw();
 			float pitch = l.getPitch();
 
-			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(x, y, z));
+			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(l.getBlockX(), l.getBlockY(), l.getBlockZ()));
 
 			// mapped according to vanilla teleport command
 			// EntityPlayer, WorldServer, ChunkProviderServer
-			connection.e().y().k().a(TicketType.g, chunkcoordintpair, 1, connection.e().ah());
+			connection.f().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.f().af());
 			player.eject();
 			if (player.isSleeping()) {
 				player.wakeup(true);
 			}
-			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(PacketPlayOutPosition.EnumPlayerTeleportFlags.class),
-					PlayerTeleportEvent.TeleportCause.PLUGIN);
+			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(RelativeMovement.class), PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-			connection.e().l(yaw);
+			connection.f().r(yaw);
 
 			return CVoid.VOID;
 		}
@@ -792,7 +789,7 @@ public class Functions {
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.q(stingers); // mapped below EntityLiving.setStingerCount
+			player.p(stingers); // mapped below EntityLiving.setStingerCount
 			return CVoid.VOID;
 		}
 
@@ -952,7 +949,7 @@ public class Functions {
 			float width = ArgumentValidation.getDouble32(args[1], t);
 			float height = ArgumentValidation.getDouble32(args[2], t);
 			// mapped to EntitySize field
-			ReflectionUtils.set(Entity.class, entity, "aZ", EntitySize.b(width, height));
+			ReflectionUtils.set(Entity.class, entity, "be", EntitySize.b(width, height));
 			return CVoid.VOID;
 		}
 

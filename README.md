@@ -3,6 +3,7 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Downloads
+[Spigot 1.19.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.11.0) (CommandHelper 3.3.5)  
 [Spigot 1.19.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.10.0) (CommandHelper 3.3.5)  
 [Spigot 1.19.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.9.1) (CommandHelper 3.3.5)  
 [Spigot 1.19.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.8.0) (CommandHelper 3.3.5)  
@@ -28,7 +29,7 @@ Opens a sign editor for the given sign location. Lines must be an array with 4 v
 If not provided, it'll use the lines from the given sign. Throws CastException if not a sign block.
 
 ### open_book{[playerName], pages | [playerName], hand}
-Sends a virtual book to a player. Accepts an array of pages or the player hand in which an existing book resides.
+Sends a virtual book to a player. Accepts an array of pages or the player hand (MAIN_HAND, OFF_HAND) in which an existing book resides.
 All pages must be either raw JSON or strings. If the JSON is not formatted correctly, it will fall back to string output.
 Throws IllegalArgumentException if no written book resides in the given hand.
 
