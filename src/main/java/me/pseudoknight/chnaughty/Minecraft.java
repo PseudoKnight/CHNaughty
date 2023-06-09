@@ -25,8 +25,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.EnumHand;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -35,7 +35,7 @@ class Minecraft {
 	static final int VIEW_DISTANCE = Bukkit.getViewDistance() * 16;
 
 	static PlayerConnection GetConnection(MCPlayer player) {
-		return ((CraftPlayer) player.getHandle()).getHandle().b;
+		return ((CraftPlayer) player.getHandle()).getHandle().c;
 	}
 
 	static Entity GetEntity(MCEntity entity) {
@@ -98,12 +98,12 @@ class Minecraft {
 			}
 			net.minecraft.world.item.Item item;
 			try {
-				item = player.b(h).c(); // mapped getItemInHand and item type
+				item = player.b(h).d(); // mapped getItemInHand and Item
 			} catch (NullPointerException ex) {
 				throw new CRENullPointerException(ex.getMessage(), t);
 			}
-			if(item == Items.td) { // mapped written_book
-				player.b.a(new PacketPlayOutOpenBook(h)); // mapped PlayerConnection.send
+			if(item == Items.th) { // mapped written_book
+				player.c.a(new PacketPlayOutOpenBook(h)); // mapped PlayerConnection.send
 			} else {
 				throw new CREIllegalArgumentException("No book in the given hand.", t);
 			}

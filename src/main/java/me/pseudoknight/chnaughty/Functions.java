@@ -40,12 +40,12 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -97,11 +97,11 @@ public class Functions {
 				} else if(pitch < -90.0) {
 					pitch = -90.0F;
 				}
-				entity.e(pitch); // mapped setXRot
+				entity.b_(pitch); // mapped setXRot
 			}
 
-			entity.f(yaw); // mapped setYRot, modifies field that getBukkitYaw returns
-			entity.r(yaw); // mapped setYHeadRot
+			entity.a_(yaw); // mapped setYRot, modifies field that getBukkitYaw returns
+			entity.n(yaw); // mapped setYHeadRot
 			return CVoid.VOID;
 		}
 
@@ -161,7 +161,7 @@ public class Functions {
 			if(player == null) {
 				throw new CREPlayerOfflineException("No online player by that name.", t);
 			}
-			PlayerConnection connection = player.getHandle().b;
+			PlayerConnection connection = player.getHandle().c;
 
 			MCLocation l;
 			if(!(args[args.length - 1] instanceof CArray)){
@@ -192,7 +192,7 @@ public class Functions {
 			}
 			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(RelativeMovement.class), PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-			connection.f().r(yaw);
+			connection.f().n(yaw);
 
 			return CVoid.VOID;
 		}
@@ -789,7 +789,7 @@ public class Functions {
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.p(stingers); // mapped below EntityLiving.setStingerCount
+			player.q(stingers); // mapped below EntityLiving.setStingerCount
 			return CVoid.VOID;
 		}
 
@@ -949,7 +949,7 @@ public class Functions {
 			float width = ArgumentValidation.getDouble32(args[1], t);
 			float height = ArgumentValidation.getDouble32(args[2], t);
 			// mapped to EntitySize field
-			ReflectionUtils.set(Entity.class, entity, "be", EntitySize.b(width, height));
+			ReflectionUtils.set(Entity.class, entity, "bh", EntitySize.b(width, height));
 			return CVoid.VOID;
 		}
 
