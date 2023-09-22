@@ -40,12 +40,12 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -83,11 +83,11 @@ public class Functions {
 
 
 			float yaw = (float) ArgumentValidation.getDouble(args[1], t);
-			yaw %= 360.0;
+			yaw %= 360.0F;
 			if(yaw >= 180.0) {
-				yaw -= 360.0;
+				yaw -= 360.0F;
 			} else if(yaw < -180.0) {
-				yaw += 360.0;
+				yaw += 360.0F;
 			}
 
 			if(args.length == 3) {
@@ -97,10 +97,10 @@ public class Functions {
 				} else if(pitch < -90.0) {
 					pitch = -90.0F;
 				}
-				entity.b_(pitch); // mapped setXRot
+				entity.s(pitch); // mapped setXRot
 			}
 
-			entity.a_(yaw); // mapped setYRot, modifies field that getBukkitYaw returns
+			entity.r(yaw); // mapped setYRot, modifies field that getBukkitYaw returns
 			entity.n(yaw); // mapped setYHeadRot
 			return CVoid.VOID;
 		}
@@ -185,14 +185,14 @@ public class Functions {
 
 			// mapped according to vanilla teleport command
 			// EntityPlayer, WorldServer, ChunkProviderServer
-			connection.f().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.f().af());
+			connection.p().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.p().ah());
 			player.eject();
 			if (player.isSleeping()) {
 				player.wakeup(true);
 			}
 			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(RelativeMovement.class), PlayerTeleportEvent.TeleportCause.PLUGIN);
 
-			connection.f().n(yaw);
+			connection.p().n(yaw);
 
 			return CVoid.VOID;
 		}
