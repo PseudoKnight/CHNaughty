@@ -3,6 +3,7 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Downloads
+[Spigot 1.20.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) (CommandHelper 3.3.5)  
 [Spigot 1.20.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.13.0) (CommandHelper 3.3.5)  
 [Spigot 1.20.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.12.0) (CommandHelper 3.3.5)  
 [Spigot 1.19.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.11.0) (CommandHelper 3.3.5)  
@@ -12,7 +13,7 @@ These functions are using NMS/OBC. They will probably break every MC version cha
 [Spigot 1.18.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.7.0) (CommandHelper 3.3.5)  
 [Spigot 1.18.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.6.1) (CommandHelper 3.3.5)  
 [Spigot 1.17.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.5.1) (CommandHelper 3.3.5)  
-[Spigot 1.16.5](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.4.1) (CommandHelper 3.3.4)  
+[Spigot 1.16.5](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.4.1) (CommandHelper 3.3.4 - 3.3.5)  
 [Spigot 1.16.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.2.0) (CommandHelper 3.3.4)  
 [Spigot 1.15.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.1.0) (CommandHelper 3.3.4)  
 [Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.4b) (CommandHelper 3.3.4)  

@@ -29,6 +29,7 @@ import com.laytonsmith.core.natives.interfaces.Mixed;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.TicketType;
+import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySize;
@@ -40,16 +41,17 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
 
@@ -184,8 +186,8 @@ public class Functions {
 			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(l.getBlockX(), l.getBlockY(), l.getBlockZ()));
 
 			// mapped according to vanilla teleport command
-			// EntityPlayer, WorldServer, ChunkProviderServer
-			connection.p().x().k().a(TicketType.g, chunkcoordintpair, 1, connection.p().ah());
+			// EntityPlayer, World/WorldServer, ChunkProviderServer, post-teleport, entity int id
+			((WorldServer) connection.p().dM()).l().a(TicketType.g, chunkcoordintpair, 1, connection.p().aj());
 			player.eject();
 			if (player.isSleeping()) {
 				player.wakeup(true);
@@ -789,7 +791,7 @@ public class Functions {
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.q(stingers); // mapped below EntityLiving.setStingerCount
+			player.q(stingers); // mapped below EntityLiving.setArrowCount
 			return CVoid.VOID;
 		}
 

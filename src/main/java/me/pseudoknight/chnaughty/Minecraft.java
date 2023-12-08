@@ -25,8 +25,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.EnumHand;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -76,7 +76,7 @@ class Minecraft {
 			}
 			for(int i = 0; i < pages.size(); i++) {
 				String text = pages.get(i, t).val();
-				if(text.length() > 0 && (text.charAt(0) == '[' || text.charAt(0) == '{')) {
+				if(!text.isEmpty() && (text.charAt(0) == '[' || text.charAt(0) == '{')) {
 					try {
 						bookmeta.spigot().addPage(ComponentSerializer.parse(text));
 						continue;
@@ -102,7 +102,7 @@ class Minecraft {
 			} catch (NullPointerException ex) {
 				throw new CRENullPointerException(ex.getMessage(), t);
 			}
-			if(item == Items.th) { // mapped written_book
+			if(item == Items.tU) { // mapped written_book
 				player.c.a(new PacketPlayOutOpenBook(h)); // mapped PlayerConnection.send
 			} else {
 				throw new CREIllegalArgumentException("No book in the given hand.", t);
