@@ -790,7 +790,7 @@ public class Functions {
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
 			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.q(stingers); // mapped below EntityLiving.setArrowCount
+			player.q(stingers); // mapped to LivingEntity.setStingerCount()
 			return CVoid.VOID;
 		}
 
@@ -941,7 +941,8 @@ public class Functions {
 
 		@Override
 		public String docs() {
-			return "void {entity, width, height} Sets an entity's collision box width and height.";
+			return "void {entity, width, height} Sets an entity's width and height."
+					+ " This gets reset every time the entity's pose changes.";
 		}
 
 		@Override
@@ -949,7 +950,7 @@ public class Functions {
 			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 			float width = ArgumentValidation.getDouble32(args[1], t);
 			float height = ArgumentValidation.getDouble32(args[2], t);
-			// mapped to EntitySize field
+			// mapped to Entity.dimensions field
 			ReflectionUtils.set(Entity.class, entity, "bh", EntitySize.b(width, height));
 			return CVoid.VOID;
 		}
