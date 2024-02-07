@@ -51,7 +51,6 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
 
@@ -150,7 +149,7 @@ public class Functions {
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			String name = "";
-			if(args.length == 3 || args.length == 6) {
+			if(args.length > 1) {
 				name = args[0].val();
 			} else {
 				MCPlayer player = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
