@@ -113,7 +113,7 @@ public class Functions {
 
 		@Override
 		public String docs() {
-			return "void {[playerName], location} Sets the player location relative to where they are on their client."
+			return "void {[player], location} Sets the player location relative to where they are on their client."
 					+ " This can be used for smooth teleportation.";
 		}
 	}
@@ -176,7 +176,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], location, [force]} Sets the player sleeping at the specified bed location."
+			return "void {[player], location, [force]} Sets the player sleeping at the specified bed location."
 					+ " Optionally force sleeping even if player normally wouldn't be able to."
 					+ " If not forced, it will throw an exception when unsuccessful."
 					+ " The following conditions must be met for a player to sleep: the location must be a bed, the player must be near it,"
@@ -368,7 +368,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "int {[playerName]} Gets the player's ping.";
+			return "int {[player]} Gets the player's ping.";
 		}
 
 		public Version since() {
@@ -419,7 +419,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], message} Sends a message to the action bar.";
+			return "void {[player], message} Sends a message to the action bar.";
 		}
 
 		public Version since() {
@@ -541,7 +541,7 @@ public class Functions {
 		public String docs() {
 			return "void {[playerName], data} Sends a virtual book to a player."
 					+ " Accepts an array of pages or a hand that has a book to open."
-					+ " Each page can be either JSON or a plain text. If the JSON is not formatted correctly, "
+					+ " Each page can be either JSON or a plain text. If the JSON is not formatted correctly,"
 					+ " it will fall back to string output per page."
 					+ " Throws IllegalArgumentException if no written book resides in the given hand.";
 		}
@@ -564,7 +564,7 @@ public class Functions {
 
 		public String docs() {
 			return "void {[player], location, [side], [lines]} Opens a sign editor for the given sign location."
-					+ " The side is optional and must be FRONT or BACK. (default FRONT)"
+					+ " The side is optional, and must be FRONT or BACK. (default FRONT)"
 					+ " Lines must be an array with up to 4 values or null. If not provided, it'll use the existing lines."
 					+ " Throws CastException if not a sign block.";
 		}
@@ -769,7 +769,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], count} Sets the amount of bee stingers in a player's model.";
+			return "void {[player], count} Sets the amount of bee stingers in a player's model.";
 		}
 
 		public Version since() {
@@ -785,7 +785,7 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[playerName], [hand]} Swing the player's hand in an attack animation. The hand parameter can"
+			return "void {[player], [hand]} Swing the player's hand in an attack animation. The hand parameter can"
 					+ " be either main_hand (default) or off_hand. Note that this also triggers a player_interact event"
 					+ " when the player is not hitting a block. The event will always have the action \"left_click_air\""
 					+ " and the hand \"main_hand\".";
@@ -852,6 +852,7 @@ public class Functions {
 		@Override
 		public String docs() {
 			return "void {entity, width, height} Sets an entity's width and height."
+					+ " This is used for some types of collisions, but is not visual (see generic_scale attribute)."
 					+ " This gets reset every time the entity's pose changes.";
 		}
 
