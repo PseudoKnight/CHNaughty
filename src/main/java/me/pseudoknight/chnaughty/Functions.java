@@ -1,8 +1,9 @@
 package me.pseudoknight.chnaughty;
 
-import com.laytonsmith.PureUtilities.Common.ReflectionUtils;
+import com.google.gson.JsonSyntaxException;
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.abstraction.MCCommandSender;
+import com.laytonsmith.abstraction.MCEntity;
 import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
 import com.laytonsmith.abstraction.bukkit.BukkitMCLocation;
@@ -26,106 +27,33 @@ import com.laytonsmith.core.exceptions.CRE.*;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.TicketType;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.server.network.PlayerConnection;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySize;
-import net.minecraft.world.entity.RelativeMovement;
-import net.minecraft.world.level.ChunkCoordIntPair;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
-import java.util.EnumSet;
 
 public class Functions {
 	public static String docs() {
 		return "Functions that lack a Bukkit or Spigot API interface.";
 	}
 
-	@api
-	public static class set_entity_rotation extends AbstractFunction {
-
-		@Override
-		public Class<? extends CREThrowable>[] thrown() {
-			return new Class[]{CREBadEntityException.class, CRELengthException.class, CRECastException.class,
-					CREIllegalArgumentException.class};
-		}
-
-		@Override
-		public boolean isRestricted() {
-			return true;
-		}
-
-		@Override
-		public Boolean runAsync() {
-			return false;
-		}
-
-		@Override
-		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
-			Entity entity = Minecraft.GetEntity(Static.getEntity(args[0], t));
-
-
-			float yaw = (float) ArgumentValidation.getDouble(args[1], t);
-			yaw %= 360.0F;
-			if(yaw >= 180.0) {
-				yaw -= 360.0F;
-			} else if(yaw < -180.0) {
-				yaw += 360.0F;
-			}
-
-			if(args.length == 3) {
-				float pitch = (float) ArgumentValidation.getDouble(args[2], t);
-				if(pitch > 90.0) {
-					pitch = 90.0F;
-				} else if(pitch < -90.0) {
-					pitch = -90.0F;
-				}
-				entity.s(pitch); // mapped setXRot
-			}
-
-			entity.r(yaw); // mapped setYRot, modifies field that getBukkitYaw returns
-			entity.n(yaw); // mapped setYHeadRot
-			return CVoid.VOID;
-		}
-
-		@Override
-		public Version since() {
-			return MSVersion.V3_3_2;
-		}
-
-		@Override
-		public String getName() {
-			return "set_entity_rotation";
-		}
-
-		@Override
-		public Integer[] numArgs() {
-			return new Integer[]{2, 3};
-		}
-
-		@Override
-		public String docs() {
-			return "void {entity, yaw, [pitch]} Sets an entity's yaw and pitch without teleporting or ejecting.";
-		}
-	}
+	static final int VIEW_DISTANCE = Bukkit.getViewDistance() * 16;
 
 	@api
 	public static class relative_teleport extends AbstractFunction {
@@ -148,53 +76,23 @@ public class Functions {
 
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
-			String name = "";
+			MCPlayer p;
 			if(args.length > 1) {
-				name = args[0].val();
+				p = Static.GetPlayer(args[0], t);
 			} else {
-				MCPlayer player = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
-				if(player != null) {
-					name = player.getName();
-				}
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
 			}
-
-			CraftPlayer player = (CraftPlayer) Bukkit.getServer().getPlayer(name);
-			if(player == null) {
-				throw new CREPlayerOfflineException("No online player by that name.", t);
-			}
-			PlayerConnection connection = player.getHandle().c;
-
 			MCLocation l;
 			if(!(args[args.length - 1] instanceof CArray)){
 				throw new CRECastException("Expecting an array at parameter " + args.length + " of set_ploc", t);
 			}
 			CArray ca = (CArray) args[args.length - 1];
-
 			l = ObjectGenerator.GetGenerator().location(ca, null, t);
-
-			if(!l.getWorld().getName().equals(player.getWorld().getName())) {
+			if(!l.getWorld().getName().equals(p.getWorld().getName())) {
 				throw new CREIllegalArgumentException("Cannot relative teleport to another world.", t);
 			}
-
-			double x = l.getX();
-			double y = l.getY();
-			double z = l.getZ();
-			float yaw = l.getYaw();
-			float pitch = l.getPitch();
-
-			ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(new BlockPosition(l.getBlockX(), l.getBlockY(), l.getBlockZ()));
-
-			// mapped according to vanilla teleport command
-			// EntityPlayer, World/WorldServer, ChunkProviderServer, post-teleport, entity int id
-			((WorldServer) connection.p().dM()).l().a(TicketType.g, chunkcoordintpair, 1, connection.p().aj());
-			player.eject();
-			if (player.isSleeping()) {
-				player.wakeup(true);
-			}
-			connection.teleport(x, y, z, yaw, pitch, EnumSet.allOf(RelativeMovement.class), PlayerTeleportEvent.TeleportCause.PLUGIN);
-
-			connection.p().n(yaw);
-
+			NMS.GetImpl().relativeTeleport(p, l, t);
 			return CVoid.VOID;
 		}
 
@@ -239,21 +137,32 @@ public class Functions {
 			MCPlayer p;
 			MCLocation loc;
 			boolean force = false;
-			if(args.length > 1){
+			if(args.length == 3) {
 				p = Static.GetPlayer(args[0].val(), t);
 				loc = ObjectGenerator.GetGenerator().location(args[1], p.getWorld(), t);
-				if(args.length == 3) {
-					force = ArgumentValidation.getBooleanObject(args[2], t);
+				force = ArgumentValidation.getBooleanObject(args[2], t);
+			} else if(args.length == 2) {
+				if(args[0] instanceof CArray) {
+					p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+					Static.AssertPlayerNonNull(p, t);
+					loc = ObjectGenerator.GetGenerator().location(args[0], p.getWorld(), t);
+					force = ArgumentValidation.getBooleanObject(args[1], t);
+				} else {
+					p = Static.GetPlayer(args[0].val(), t);
+					loc = ObjectGenerator.GetGenerator().location(args[1], p.getWorld(), t);
 				}
 			} else {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
 				loc = ObjectGenerator.GetGenerator().location(args[0], p.getWorld(), t);
 			}
-			if(force) {
-				((Player) p.getHandle()).sleep((Location) loc.getHandle(), true);
-			} else {
-				Minecraft.Sleep(p, loc, t);
+			try {
+				boolean success = ((Player) p.getHandle()).sleep((Location) loc.getHandle(), force);
+				if(!force && !success) {
+					throw new CREException("Cannot sleep in the bed.", t);
+				}
+			} catch(IllegalArgumentException ex) {
+				throw new CREException(ex.getMessage(), t);
 			}
 			return CVoid.VOID;
 		}
@@ -269,7 +178,7 @@ public class Functions {
 		public String docs() {
 			return "void {[playerName], location, [force]} Sets the player sleeping at the specified bed location."
 					+ " Optionally force sleeping even if player normally wouldn't be able to."
-					+ " If not forced, it will throws an exception when unsuccessful."
+					+ " If not forced, it will throw an exception when unsuccessful."
 					+ " The following conditions must be met for a player to sleep: the location must be a bed, the player must be near it,"
 					+ " it must not be obstructed, it must be night and there must not be hostile mobs nearby.";
 		}
@@ -277,7 +186,6 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_2;
 		}
-
 	}
 
 	@api
@@ -302,7 +210,7 @@ public class Functions {
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			Player p;
-			double range = Minecraft.VIEW_DISTANCE;
+			double range = VIEW_DISTANCE;
 			double raySize = 0.0D;
 			Location loc;
 			
@@ -344,7 +252,7 @@ public class Functions {
 			if(range == 0) {
 				throw new CRERangeException("Range cannot be zero!", t);
 			}
-			range = Math.min(range, Minecraft.VIEW_DISTANCE);
+			range = Math.min(range, VIEW_DISTANCE);
 
 			double yaw = Math.toRadians(loc.getYaw() + 90);
 			double pitch = Math.toRadians(-loc.getPitch());
@@ -466,7 +374,6 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_2;
 		}
-
 	}
  
 	@api
@@ -498,7 +405,8 @@ public class Functions {
 				message = args[0].val();
 			}
 			MCPlayer player = Static.GetPlayer(name, t);
-			Minecraft.ActionMsg(player, message);
+			BaseComponent txt = net.md_5.bungee.api.chat.TextComponent.fromLegacy(message);
+			((Player) player.getHandle()).spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, txt);
 			return CVoid.VOID;
 		}
 
@@ -517,7 +425,6 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_1;
 		}
-
 	}
 
 	@api
@@ -536,9 +443,8 @@ public class Functions {
 		}
 
 		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			double[] recentTps = ((CraftServer)Bukkit.getServer()).getServer().recentTps;
 			CArray tps = new CArray(t, 3);
-			for(double d : recentTps) {
+			for(double d : NMS.GetImpl().getTPS()) {
 				tps.push(new CDouble(Math.min(Math.round(d * 100.0D) / 100.0D, 20.0D), t), t);
 			}
 			return tps;
@@ -559,7 +465,6 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_1;
 		}
-
 	}
 
 	@api
@@ -588,7 +493,40 @@ public class Functions {
 				Static.AssertPlayerNonNull(player, t);
 				data = args[0];
 			}
-			Minecraft.OpenBook(player, data, t);
+			if(data instanceof CArray pages) {
+				ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+				BookMeta bookmeta = (BookMeta) book.getItemMeta();
+				if(bookmeta == null) {
+					throw new CRENullPointerException("Book meta is null. This shouldn't happen and may be a problem with the server.", t);
+				}
+				for(int i = 0; i < pages.size(); i++) {
+					String text = pages.get(i, t).val();
+					if(!text.isEmpty() && (text.charAt(0) == '[' || text.charAt(0) == '{')) {
+						try {
+							bookmeta.spigot().addPage(ComponentSerializer.parse(text));
+							continue;
+						} catch(IllegalStateException | JsonSyntaxException ignored) {}
+					}
+					bookmeta.addPage(text);
+				}
+				bookmeta.setTitle(" ");
+				bookmeta.setAuthor(" ");
+				book.setItemMeta(bookmeta);
+				((Player) player.getHandle()).openBook(book);
+			} else {
+				ItemStack book;
+				if(data.val().equals("MAIN_HAND")) {
+					book = ((Player) player.getHandle()).getInventory().getItemInMainHand();
+				} else if(data.val().equals("OFF_HAND")) {
+					book = ((Player) player.getHandle()).getInventory().getItemInMainHand();
+				} else {
+					throw new CREIllegalArgumentException("Invalid hand: " + data.val(), t);
+				}
+				if(book.isEmpty() || book.getType() != Material.WRITTEN_BOOK) {
+					throw new CREIllegalArgumentException("No book in the given hand.", t);
+				}
+				((Player) player.getHandle()).openBook(book);
+			}
 			return CVoid.VOID;
 		}
 
@@ -611,8 +549,8 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_2;
 		}
-
 	}
+
 	@api
 	public static class open_sign extends AbstractFunction {
 
@@ -625,8 +563,9 @@ public class Functions {
 		}
 
 		public String docs() {
-			return "void {[player], location, [lines]} Opens a sign editor for the given sign location. Lines must"
-					+ " be an array with 4 values or null. If not provided, it'll use the lines from the given sign."
+			return "void {[player], location, [side], [lines]} Opens a sign editor for the given sign location."
+					+ " The side is optional and must be FRONT or BACK. (default FRONT)"
+					+ " Lines must be an array with up to 4 values or null. If not provided, it'll use the existing lines."
 					+ " Throws CastException if not a sign block.";
 		}
 
@@ -634,16 +573,38 @@ public class Functions {
 			MCPlayer player;
 			Mixed clocation;
 			Mixed clines = null;
-			if(args.length == 3) {
+			Mixed cside = null;
+			if(args.length == 4) {
 				player = Static.GetPlayer(args[0], t);
 				clocation = args[1];
-				clines = args[2];
+				cside = args[2];
+				clines = args[3];
+			} else if(args.length == 3) {
+				if(args[0] instanceof CArray) {
+					player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
+					Static.AssertPlayerNonNull(player, t);
+					clocation = args[0];
+					cside = args[1];
+					clines = args[2];
+				} else if(args[2] instanceof CArray) {
+					player = Static.GetPlayer(args[0], t);
+					clocation = args[1];
+					clines = args[2];
+				} else {
+					player = Static.GetPlayer(args[0], t);
+					clocation = args[1];
+					cside = args[2];
+				}
 			} else if(args.length == 2) {
 				if(args[0] instanceof CArray) {
 					player = environment.getEnv(CommandHelperEnvironment.class).GetPlayer();
 					Static.AssertPlayerNonNull(player, t);
 					clocation = args[0];
-					clines = args[1];
+					if(args[1] instanceof CArray) {
+						clines = args[1];
+					} else {
+						cside = args[1];
+					}
 				} else {
 					player = Static.GetPlayer(args[0], t);
 					clocation = args[1];
@@ -655,29 +616,37 @@ public class Functions {
 			}
 
 			MCLocation signLoc = ObjectGenerator.GetGenerator().location(clocation, null, t);
-
-			if(clines != null) {
-				String[] lines = new String[4];
-				if(!(clines instanceof CNull)) {
-					if(!(clines instanceof CArray)) {
-						throw new CREFormatException("Expected an array.", t);
-					}
-					CArray array = (CArray) clines;
-					for(int i = 0; i < 4; i++) {
-						lines[i] = array.get(i, t).val();
-					}
-				}
-				player.sendSignTextChange(signLoc, lines);
-			}
-
 			BlockState state = ((Location) signLoc.getHandle()).getBlock().getState();
-			if(!(state instanceof Sign)) {
+			if(!(state instanceof Sign sign)) {
 				throw new CRECastException("This location is not a sign.", t);
 			}
+
+			Side side = Side.FRONT;
+			if(cside != null) {
+				try {
+					side = Side.valueOf(cside.val());
+				} catch(IllegalArgumentException ex) {
+					throw new CREFormatException("Invalid sign side: " + cside.val(), t);
+				}
+			}
+
+			if(clines != null) {
+				SignSide signSide = sign.getSide(side);
+				if(clines instanceof CArray array) {
+					long max = Math.min(array.size(), 4);
+					for (int i = 0; i < max; i++) {
+						signSide.setLine(i, array.get(i, t).val());
+					}
+					((Player) player.getHandle()).sendBlockUpdate((Location) signLoc.getHandle(), sign);
+				} else if(clines != CNull.NULL) {
+					throw new CREFormatException("Expected lines to be an array.", t);
+				}
+			}
+
 			try {
-				((Player) player.getHandle()).openSign((Sign) state);
+				((Player) player.getHandle()).openSign((Sign) state, side);
 			} catch (IllegalArgumentException ex) {
-				throw new CREInvalidWorldException("Cannot open sign in another world", t);
+				throw new CREInvalidWorldException(ex.getMessage(), t);
 			}
 			return CVoid.VOID;
 		}
@@ -698,7 +667,6 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_2;
 		}
-
 	}
 
 	@api
@@ -759,7 +727,6 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_2;
 		}
-
 	}
 
 	@api
@@ -789,8 +756,7 @@ public class Functions {
 				Static.AssertPlayerNonNull(p, t);
 				stingers = ArgumentValidation.getInt32(args[0], t);
 			}
-			EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-			player.q(stingers); // mapped to LivingEntity.setStingerCount()
+			NMS.GetImpl().setStingerCount(p, stingers, t);
 			return CVoid.VOID;
 		}
 
@@ -809,7 +775,6 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_4;
 		}
-
 	}
 
 	@api
@@ -832,21 +797,21 @@ public class Functions {
 
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
 			MCPlayer p;
-			String hand = "MAIN_HAND";
+			String hand = "main_hand";
 			if(args.length == 2){
 				p = Static.GetPlayer(args[0].val(), t);
-				hand = args[1].val().toUpperCase();
+				hand = args[1].val().toLowerCase();
 			} else {
 				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
 				Static.AssertPlayerNonNull(p, t);
 				if(args.length == 1) {
-					hand = args[0].val().toUpperCase();
+					hand = args[0].val().toLowerCase();
 				}
 			}
 			Player player = ((Player) p.getHandle());
-			if(hand.isEmpty() || hand.equals("MAIN_HAND")) {
+			if(hand.isEmpty() || hand.equals("main_hand")) {
 				player.swingMainHand();
-			} else if(hand.equals("OFF_HAND")) {
+			} else if(hand.equals("off_hand")) {
 				player.swingOffHand();
 			} else {
 				throw new CREFormatException("Expected main_hand or off_hand but got \"" + hand + "\".", t);
@@ -869,61 +834,6 @@ public class Functions {
 		public Version since() {
 			return MSVersion.V3_3_2;
 		}
-
-	}
-
-	@api
-	public static class set_psky extends AbstractFunction {
-
-		public String getName() {
-			return "set_psky";
-		}
-
-		public String docs() {
-			return "void {[playerName], downFallOpacity, storminess} Sends a packet to the player to change their sky."
-					+ " As of 1.17 the first number changes the opacity of precipitation from 0.0 - 1.0."
-					+ " The second number changes the storminess of the skyt while precipitating from 0.0 - 1.0.";
-		}
-
-		public Integer[] numArgs() {
-			return new Integer[]{2, 3};
-		}
-
-		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
-			MCPlayer p;
-			float a;
-			float b;
-			if(args.length == 3){
-				p = Static.GetPlayer(args[0].val(), t);
-				a = ArgumentValidation.getDouble32(args[1], t);
-				b = ArgumentValidation.getDouble32(args[2], t);
-			} else {
-				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
-				Static.AssertPlayerNonNull(p, t);
-				a = ArgumentValidation.getDouble32(args[0], t);
-				b = ArgumentValidation.getDouble32(args[1], t);
-			}
-			Minecraft.SetSky(p, a, b);
-			return CVoid.VOID;
-		}
-
-		public Class<? extends CREThrowable>[] thrown() {
-			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CRERangeException.class,
-					CRECastException.class};
-		}
-
-		public boolean isRestricted() {
-			return true;
-		}
-
-		public Boolean runAsync() {
-			return false;
-		}
-
-		public Version since() {
-			return MSVersion.V3_3_2;
-		}
-
 	}
 
 	@api
@@ -947,11 +857,10 @@ public class Functions {
 
 		@Override
 		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
-			Entity entity = ((CraftEntity) Static.getEntity(args[0], t).getHandle()).getHandle();
 			float width = ArgumentValidation.getDouble32(args[1], t);
 			float height = ArgumentValidation.getDouble32(args[2], t);
-			// mapped to Entity.dimensions field
-			ReflectionUtils.set(Entity.class, entity, "bh", EntitySize.b(width, height));
+			MCEntity entity = Static.getEntity(args[0], t);
+			NMS.GetImpl().setEntitySize(entity, width, height);
 			return CVoid.VOID;
 		}
 

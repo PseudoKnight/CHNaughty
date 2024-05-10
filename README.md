@@ -25,9 +25,11 @@ These functions are using NMS/OBC. They will probably break every MC version cha
 [Spigot 1.8.8](https://github.com/PseudoKnight/CHNaughty/releases/tag/v2.0.1) (CommandHelper 3.3.2)
 
 ## Functions
-### open_sign{[player], signLocation, [lines]}
-Opens a sign editor for the given sign location. Lines must be an array with 4 values or null.
-If not provided, it'll use the lines from the given sign. Throws CastException if not a sign block.
+### open_sign{[player], signLocation, [side], [lines]}
+Opens a sign editor for the given sign location.  
+The side is optional and must be FRONT or BACK. (default FRONT)  
+Lines must be an array with up to 4 values or null. If not provided, it'll use the existing lines.  
+Throws CastException if not a sign block.
 
 ### open_book{[playerName], pages | [playerName], hand}
 Sends a virtual book to a player. Accepts an array of pages or the player hand (MAIN_HAND, OFF_HAND) in which an existing book resides.
@@ -37,12 +39,9 @@ Throws IllegalArgumentException if no written book resides in the given hand.
 ### relative_teleport([playerName], locationArray)
 Sets the player location relative to where they are on their client. This can be used for smooth teleportation.
 
-### set_entity_rotation(entityID, yaw, [pitch])
-Sets an entity's yaw and pitch without teleporting or ejecting.
-
 ### psleep([playerName], bedLocation, [force])
 Sets the player sleeping at the specified bed location. Optionally force sleeping even if player normally wouldn't be able to.
-If not forced, it will throws an exception when unsuccessful.
+If not forced, it will throw an exception when unsuccessful.
 The following conditions must be met for a player to sleep: the location must be a bed, the player must be near it,
 it must not be obstructed, it must be night and there must not be hostile mobs nearby.
 
@@ -52,11 +51,6 @@ so the accuracy of the result is dependent on the server's method.
 
 ### pswing_hand([playerName], [hand])
 Swing the player's hand in an attack animation. The hand parameter can be either main_hand (default) or off_hand.
-
-### set_psky([playerName], downFallOpacity, storminess)
-Sends a packet to the player to change their sky.
-As of 1.17 the first number changes the opacity of precipitation from 0.0 - 1.0.
-The second number changes the storminess of the sky while precipitating from 0.0 - 1.0.
 
 ### set_parrow_count(count | player, count, [ticks])
 Sets the amount of arrows in a player's model.
