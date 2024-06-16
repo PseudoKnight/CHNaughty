@@ -13,9 +13,9 @@ import net.minecraft.world.entity.EntitySize;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.ChunkCoordIntPair;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R4.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_21_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.EnumSet;
@@ -38,7 +38,7 @@ class SpigotImpl extends NMS {
 		EntityPlayer entityPlayer = player.getHandle();
 		// mapped according to vanilla teleport command
 		// EntityPlayer, World/WorldServer, ChunkProviderServer, post-teleport, entity int id
-		entityPlayer.z().l().a(TicketType.g, chunkcoordintpair, 1, entityPlayer.al());
+		entityPlayer.A().l().a(TicketType.f, chunkcoordintpair, 1, entityPlayer.an());
 		player.eject();
 		if (player.isSleeping()) {
 			player.wakeup(true);
@@ -55,13 +55,13 @@ class SpigotImpl extends NMS {
 	@Override
 	void setStingerCount(MCPlayer p, int count, Target t) {
 		EntityPlayer player = ((CraftPlayer) p.getHandle()).getHandle();
-		player.r(count); // mapped to LivingEntity.setStingerCount()
+		player.q(count); // mapped to EntityLiving.setStingerCount() below setArrowCount
 	}
 
 	@Override
 	void setEntitySize(MCEntity e, float width, float height) {
 		Entity entity = ((CraftEntity) e.getHandle()).getHandle();
 		// mapped to Entity.dimensions field
-		ReflectionUtils.set(Entity.class, entity, "bf", EntitySize.b(width, height));
+		ReflectionUtils.set(Entity.class, entity, "bd", EntitySize.b(width, height));
 	}
 }
