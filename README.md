@@ -49,10 +49,6 @@ If not forced, it will throw an exception when unsuccessful.
 The following conditions must be met for a player to sleep: the location must be a bed, the player must be near it,
 it must not be obstructed, it must be night and there must not be hostile mobs nearby.
 
-### ping([player])
-Returns the player's ping to the server. This data is stored on the server,
-so the accuracy of the result is dependent on the server's method.
-
 ### pswing_hand([player], [hand])
 Swing the player's hand in an attack animation. The hand parameter can be either main_hand (default) or off_hand.
 
