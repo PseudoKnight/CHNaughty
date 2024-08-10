@@ -2,20 +2,23 @@
 
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
-## Downloads
-[Spigot 1.21.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.16.0) (CommandHelper 3.3.5)  
-[Spigot 1.20.6](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.15.0) (CommandHelper 3.3.5)  
-[Spigot 1.20.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) (CommandHelper 3.3.5)  
+## Releases
+[Spigot 1.21.0 - 1.21.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.16.0) (CommandHelper 3.3.5)  
+[Spigot 1.20.5 - 1.20.6](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.15.0) (CommandHelper 3.3.5)  
+[Spigot 1.20.3 - 1.20.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) (CommandHelper 3.3.5)  
 [Spigot 1.20.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.13.0) (CommandHelper 3.3.5)  
 [Spigot 1.20.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.12.0) (CommandHelper 3.3.5)  
 [Spigot 1.19.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.11.0) (CommandHelper 3.3.5)  
+<details>
+<summary>Older Releases</summary>
+
 [Spigot 1.19.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.10.0) (CommandHelper 3.3.5)  
-[Spigot 1.19.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.9.1) (CommandHelper 3.3.5)  
+[Spigot 1.19.1 - 1.19.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.9.1) (CommandHelper 3.3.5)  
 [Spigot 1.19.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.8.0) (CommandHelper 3.3.5)  
 [Spigot 1.18.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.7.0) (CommandHelper 3.3.5)  
-[Spigot 1.18.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.6.1) (CommandHelper 3.3.5)  
-[Spigot 1.17.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.5.1) (CommandHelper 3.3.5)  
-[Spigot 1.16.5](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.4.1) (CommandHelper 3.3.4 - 3.3.5)  
+[Spigot 1.18.0 - 1.18.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.6.1) (CommandHelper 3.3.5)  
+[Spigot 1.17.0 - 1.17.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.5.1) (CommandHelper 3.3.5)  
+[Spigot 1.16.4 - 1.16.5](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.4.1) (CommandHelper 3.3.4 - 3.3.5)  
 [Spigot 1.16.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.2.0) (CommandHelper 3.3.4)  
 [Spigot 1.15.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.1.0) (CommandHelper 3.3.4)  
 [Spigot 1.14.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.11.4b) (CommandHelper 3.3.4)  
@@ -24,7 +27,9 @@ These functions are using NMS/OBC. They will probably break every MC version cha
 [Spigot 1.11.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.4.2) (CommandHelper 3.3.2)  
 [Spigot 1.10.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.4.1) (CommandHelper 3.3.2)  
 [Spigot 1.9.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v3.2.0) (CommandHelper 3.3.2)  
-[Spigot 1.8.8](https://github.com/PseudoKnight/CHNaughty/releases/tag/v2.0.1) (CommandHelper 3.3.2)
+[Spigot 1.8.5 - 1.8.8](https://github.com/PseudoKnight/CHNaughty/releases/tag/v2.0.1) (CommandHelper 3.3.2)  
+[Spigot 1.8.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v1.8.0) CommandHelper 3.3.2)
+</details>
 
 ## Functions
 ### open_sign{[player], signLocation, [side], [lines]}
