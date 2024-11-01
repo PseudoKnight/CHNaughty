@@ -541,7 +541,7 @@ public class Functions {
 				} else {
 					throw new CREIllegalArgumentException("Invalid hand: " + data.val(), t);
 				}
-				if(book.isEmpty() || book.getType() != Material.WRITTEN_BOOK) {
+				if(book.getType() != Material.WRITTEN_BOOK) {
 					throw new CREIllegalArgumentException("No book in the given hand.", t);
 				}
 				((Player) player.getHandle()).openBook(book);
