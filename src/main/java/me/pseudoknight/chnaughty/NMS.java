@@ -21,7 +21,6 @@ public abstract class NMS {
 		return Impl;
 	}
 
-	abstract void relativeTeleport(MCPlayer p, MCLocation loc, Target t);
 	abstract double[] getTPS();
 	abstract void setStingerCount(MCPlayer p, int count, Target t);
 	abstract void setEntitySize(MCEntity e, float width, float height);

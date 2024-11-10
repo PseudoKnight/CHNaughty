@@ -2,26 +2,16 @@ package me.pseudoknight.chnaughty;
 
 import com.laytonsmith.PureUtilities.Common.ReflectionUtils;
 import com.laytonsmith.abstraction.MCEntity;
-import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
 import com.laytonsmith.core.constructs.Target;
-import io.papermc.paper.entity.TeleportFlag;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 class PaperImpl extends NMS {
-
-	@Override
-	public void relativeTeleport(MCPlayer p, MCLocation loc, Target t) {
-		((Player) p.getHandle()).teleport((Location) loc.getHandle(), PlayerTeleportEvent.TeleportCause.PLUGIN,
-				TeleportFlag.Relative.values());
-	}
 
 	@Override
 	public double[] getTPS() {

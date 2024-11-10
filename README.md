@@ -3,6 +3,7 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Releases
+[Spigot 1.21.2 - 1.21.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.17.0) (CommandHelper 3.3.5)  
 [Spigot 1.21.0 - 1.21.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.16.1) (CommandHelper 3.3.5)  
 [Spigot 1.20.5 - 1.20.6](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.15.0) (CommandHelper 3.3.5)  
 [Spigot 1.20.3 - 1.20.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) (CommandHelper 3.3.5)  
@@ -22,9 +23,6 @@ Sends a virtual book to a player.
 Accepts an array of pages or the player hand (MAIN_HAND, OFF_HAND) in which an existing book resides.  
 All pages must be either raw JSON or strings. If the JSON is not formatted correctly, it will fall back to string output.  
 Throws IllegalArgumentException if no written book resides in the given hand.
-
-### relative_teleport([player], locationArray)
-Sets the player location relative to where they are on their client. This can be used for smooth teleportation.
 
 ### psleep([player], bedLocation, [force])
 Sets the player sleeping at the specified bed location.  
