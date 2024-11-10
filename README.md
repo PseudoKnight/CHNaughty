@@ -3,12 +3,15 @@
 These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
 
 ## Releases
-[Spigot 1.21.2 - 1.21.3](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.0.0) (CommandHelper 3.3.5)  
-[Spigot 1.21.0 - 1.21.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.16.1) (CommandHelper 3.3.5)  
-[Spigot 1.20.5 - 1.20.6](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.15.0) (CommandHelper 3.3.5)  
-[Spigot 1.20.3 - 1.20.4](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) (CommandHelper 3.3.5)  
-[Spigot 1.20.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.13.0) (CommandHelper 3.3.5)  
-[Spigot 1.20.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.12.0) (CommandHelper 3.3.5)  
+Latest releases require CommandHelper 3.3.5.
+
+[CHNaughty 5.0.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.0.0) for Paper 1.20.6 - 1.21.3 and Spigot 1.21.2 - 1.21.3  
+[CHNaughty 4.16.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.16.1) for Paper 1.20.6 - 1.21.3 and Spigot 1.21.0 - 1.21.1  
+[CHNaughty 4.15.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.15.0) for Paper 1.20.6 - 1.21.3 and Spigot 1.20.5 - 1.20.6  
+[CHNaughty 4.14.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) for Paper and Spigot 1.20.3 - 1.20.4  
+[CHNaughty 4.13.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.13.0) for Paper and Spigot 1.20.2  
+[CHNaughty 4.12.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.12.0) for Paper and Spigot 1.20.1
+
 [Older Releases](https://github.com/PseudoKnight/CHNaughty/releases)
 
 ## Functions
