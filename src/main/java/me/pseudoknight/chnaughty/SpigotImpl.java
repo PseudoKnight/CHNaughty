@@ -2,8 +2,10 @@ package me.pseudoknight.chnaughty;
 
 import com.laytonsmith.PureUtilities.Common.ReflectionUtils;
 import com.laytonsmith.abstraction.MCEntity;
+import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
 import com.laytonsmith.core.constructs.Target;
+import com.laytonsmith.core.exceptions.CRE.CREUnsupportedOperationException;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.*;
 import org.bukkit.Bukkit;
@@ -12,6 +14,11 @@ import org.bukkit.craftbukkit.v1_21_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_21_R2.entity.CraftPlayer;
 
 class SpigotImpl extends NMS {
+
+	@Override
+	void relativeTeleport(MCPlayer p, MCLocation loc, Target t) {
+		throw new CREUnsupportedOperationException("relative_teleport() unsupported on Spigot", t);
+	}
 
 	@Override
 	public double[] getTPS() {

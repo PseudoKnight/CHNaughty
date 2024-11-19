@@ -9,13 +9,9 @@ import com.laytonsmith.abstraction.MCPlayer;
 import com.laytonsmith.abstraction.bukkit.BukkitMCLocation;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.*;
-import com.laytonsmith.core.compiler.CompilerEnvironment;
-import com.laytonsmith.core.compiler.CompilerWarning;
-import com.laytonsmith.core.compiler.FileOptions;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CDouble;
-import com.laytonsmith.core.constructs.CInt;
 import com.laytonsmith.core.constructs.CNull;
 import com.laytonsmith.core.constructs.CString;
 import com.laytonsmith.core.constructs.CVoid;
@@ -24,7 +20,6 @@ import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.CRE.*;
-import com.laytonsmith.core.exceptions.ConfigCompileException;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
@@ -48,9 +43,6 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
 
 public class Functions {
 	public static String docs() {
@@ -58,6 +50,69 @@ public class Functions {
 	}
 
 	static final int VIEW_DISTANCE = Bukkit.getViewDistance() * 16;
+
+	@api
+	public static class relative_teleport extends AbstractFunction {
+
+		@Override
+		public Class<? extends CREThrowable>[] thrown() {
+			return new Class[]{CREPlayerOfflineException.class, CRELengthException.class, CREException.class,
+					CREFormatException.class};
+		}
+
+		@Override
+		public boolean isRestricted() {
+			return true;
+		}
+
+		@Override
+		public Boolean runAsync() {
+			return false;
+		}
+
+		@Override
+		public Construct exec(Target t, Environment env, Mixed... args) throws ConfigRuntimeException {
+			MCPlayer p;
+			if(args.length > 1) {
+				p = Static.GetPlayer(args[0], t);
+			} else {
+				p = env.getEnv(CommandHelperEnvironment.class).GetPlayer();
+				Static.AssertPlayerNonNull(p, t);
+			}
+			MCLocation l;
+			if(!(args[args.length - 1] instanceof CArray)){
+				throw new CRECastException("Expecting an array at parameter " + args.length + " of set_ploc", t);
+			}
+			CArray ca = (CArray) args[args.length - 1];
+			l = ObjectGenerator.GetGenerator().location(ca, null, t);
+			if(!l.getWorld().getName().equals(p.getWorld().getName())) {
+				throw new CREIllegalArgumentException("Cannot relative teleport to another world.", t);
+			}
+			NMS.GetImpl().relativeTeleport(p, l, t);
+			return CVoid.VOID;
+		}
+
+		@Override
+		public Version since() {
+			return MSVersion.V3_3_2;
+		}
+
+		@Override
+		public String getName() {
+			return "relative_teleport";
+		}
+
+		@Override
+		public Integer[] numArgs() {
+			return new Integer[]{1, 2};
+		}
+
+		@Override
+		public String docs() {
+			return "void {[player], location} Sets the player location using relative flags."
+					+ " This can be used for smooth teleportation. (unsupported on Spigot)";
+		}
+	}
 
 	@api
 	public static class psleep extends AbstractFunction {
@@ -736,7 +791,7 @@ public class Functions {
 	}
 
 	@api
-	public static class set_entity_size extends AbstractFunction implements Optimizable {
+	public static class set_entity_size extends AbstractFunction {
 
 		@Override
 		public String getName() {
@@ -750,9 +805,11 @@ public class Functions {
 
 		@Override
 		public String docs() {
-			return "void {entity, width, height} Sets an entity's width and height."
-					+ " This is used for some types of collisions, but is not visual (see generic_scale attribute)."
-					+ " This gets reset every time the entity's pose changes.";
+			return "void {entity, width, height} Sets an entity collision box's width and height used for movement."
+					+ " This gets reset every time the entity's pose changes and isn't used when entity is stationary."
+					+ " It's better to use the GENERIC_SCALE attribute where possible."
+					+ " However, this can still be used when you need to decouple the collision box's width and height,"
+					+ " or to decouple visual size and collision box size.";
 		}
 
 		@Override
@@ -783,21 +840,6 @@ public class Functions {
 		@Override
 		public Boolean runAsync() {
 			return false;
-		}
-
-		@Override
-		public ParseTree optimizeDynamic(Target t, Environment env,
-				Set<Class<? extends Environment.EnvironmentImpl>> envs,
-				List<ParseTree> children, FileOptions fileOptions)
-				throws ConfigCompileException, ConfigRuntimeException {
-			env.getEnv(CompilerEnvironment.class).addCompilerWarning(fileOptions,
-					new CompilerWarning(getName() + " is deprecated for scale attribute.", t, null));
-			return null;
-		}
-
-		@Override
-		public Set<Optimizable.OptimizationOption> optimizationOptions() {
-			return EnumSet.of(Optimizable.OptimizationOption.OPTIMIZE_DYNAMIC);
 		}
 	}
 }

@@ -5,7 +5,7 @@ These functions are using NMS/OBC. They will probably break every MC version cha
 ## Releases
 Latest releases require CommandHelper 3.3.5.
 
-[CHNaughty 5.0.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.0.0) for Paper 1.20.6 - 1.21.3 and Spigot 1.21.2 - 1.21.3  
+[CHNaughty 5.0.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.0.0) for Paper 1.20.6 - 1.21.3 and Spigot 1.21.2 - 1.21.3  
 [CHNaughty 4.16.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.16.1) for Paper 1.20.6 - 1.21.3 and Spigot 1.21.0 - 1.21.1  
 [CHNaughty 4.15.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.15.0) for Paper 1.20.6 - 1.21.3 and Spigot 1.20.5 - 1.20.6  
 [CHNaughty 4.14.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) for Paper and Spigot 1.20.3 - 1.20.4  
@@ -65,3 +65,10 @@ if(function_exists('action_msg')) {
 
 ### tps()
 Returns an array of average ticks per second over 5, 10 and 15 minutes. eg. {19.9999999,19.99888567,19.56889299}
+
+### set_entity_size(entity, width, height)
+Sets an entity collision box's width and height used for movement.  
+This gets reset every time the entity's pose changes and isn't used when entity is stationary.  
+It's better to use the GENERIC_SCALE attribute where possible.  
+However, this can still be used when you need to decouple the collision box's width and height,  
+or to decouple visual size and collision box size.
