@@ -9,9 +9,9 @@ import com.laytonsmith.core.exceptions.CRE.CREUnsupportedOperationException;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.*;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_21_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_21_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_21_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_21_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 
 class SpigotImpl extends NMS {
 
