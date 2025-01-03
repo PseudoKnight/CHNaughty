@@ -350,58 +350,6 @@ public class Functions {
 		}
 	}
 
-
-	@api
-	public static class action_msg extends AbstractFunction {
-
-		public Class<? extends CREThrowable>[] thrown() {
-			return new Class[]{CREPlayerOfflineException.class};
-		}
-
-		public boolean isRestricted() {
-			return true;
-		}
-
-		public Boolean runAsync() {
-			return false;
-		}
-
-		public Construct exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
-			String name = "";
-			String message;
-			if(args.length == 2) {
-				name = args[0].val();
-				message = args[1].val();
-			} else {
-				MCCommandSender sender = environment.getEnv(CommandHelperEnvironment.class).GetCommandSender();
-				if(sender instanceof MCPlayer) {
-					name = sender.getName();
-				}
-				message = args[0].val();
-			}
-			MCPlayer player = Static.GetPlayer(name, t);
-			BaseComponent txt = net.md_5.bungee.api.chat.TextComponent.fromLegacy(message);
-			((Player) player.getHandle()).spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, txt);
-			return CVoid.VOID;
-		}
-
-		public String getName() {
-			return "action_msg";
-		}
-
-		public Integer[] numArgs() {
-			return new Integer[]{1, 2};
-		}
-
-		public String docs() {
-			return "void {[player], message} Sends a message to the action bar.";
-		}
-
-		public Version since() {
-			return MSVersion.V3_3_1;
-		}
-	}
-
 	@api
 	public static class tps extends AbstractFunction {
 

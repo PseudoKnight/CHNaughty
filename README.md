@@ -55,15 +55,6 @@ Result array contains the following keys:
 'origin' contains the location where the ray trace starts (useful if you don't specify a location);  
 'entities' contains an array of hit entities where each array contains a 'location' key and 'uuid' key.
 
-### action_msg([player], message)
-Sends a message to the action bar, located right above the player's hotbar.
-
-``` 
-if(function_exists('action_msg')) {
-  action_msg('PseudoKnight', colorize('&2You picked up an apple.'));
-}
-```
-
 ### tps()
 Returns an array of average ticks per second over 5, 10 and 15 minutes. eg. {19.9999999,19.99888567,19.56889299}
 
