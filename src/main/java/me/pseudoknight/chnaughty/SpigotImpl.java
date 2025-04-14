@@ -9,9 +9,9 @@ import com.laytonsmith.core.exceptions.CRE.CREUnsupportedOperationException;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.*;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_21_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_21_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_21_R4.CraftServer;
+import org.bukkit.craftbukkit.v1_21_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_21_R4.entity.CraftPlayer;
 
 class SpigotImpl extends NMS {
 
@@ -35,6 +35,6 @@ class SpigotImpl extends NMS {
 	void setEntitySize(MCEntity e, float width, float height) {
 		Entity entity = ((CraftEntity) e.getHandle()).getHandle();
 		// mapped to Entity.dimensions field
-		ReflectionUtils.set(Entity.class, entity, "bb", EntitySize.b(width, height));
+		ReflectionUtils.set(Entity.class, entity, "be", EntitySize.b(width, height));
 	}
 }
