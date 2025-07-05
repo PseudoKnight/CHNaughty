@@ -5,7 +5,7 @@ These functions are using NMS/OBC. They will probably break every MC version cha
 ## Releases
 Latest releases require CommandHelper 3.3.5.
 
-[CHNaughty 5.3.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.3.0) for Paper 1.20.6 - 1.21.6 and Spigot 1.21.6  
+[CHNaughty 5.3.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.3.0) for Paper 1.20.6 - 1.21.7 and Spigot 1.21.6 - 1.21.7  
 [CHNaughty 5.2.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.2.0) for Paper 1.20.6 - 1.21.6 and Spigot 1.21.5  
 [CHNaughty 5.1.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.1.0) for Paper 1.20.6 - 1.21.4 and Spigot 1.21.4  
 [CHNaughty 5.0.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.0.0) for Paper 1.20.6 - 1.21.3 and Spigot 1.21.2 - 1.21.3  
