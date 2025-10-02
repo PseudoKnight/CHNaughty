@@ -17,6 +17,17 @@ import java.lang.reflect.Method;
 
 class PaperImpl extends NMS {
 
+	private final Method fixedDimensions;
+
+	PaperImpl() {
+		try {
+			Class c = Class.forName("net.minecraft.world.entity.EntityDimensions");
+			fixedDimensions = c.getDeclaredMethod("fixed", float.class, float.class);
+		} catch(ClassNotFoundException | NoSuchMethodException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public void relativeTeleport(MCPlayer p, MCLocation loc, Target t) {
 		((Player) p.getHandle()).teleport((Location) loc.getHandle(), PlayerTeleportEvent.TeleportCause.PLUGIN,
@@ -37,11 +48,9 @@ class PaperImpl extends NMS {
 	void setEntitySize(MCEntity e, float width, float height) {
 		org.bukkit.entity.Entity entity = ((org.bukkit.entity.Entity) e.getHandle());
 		try {
-			Class<?> c = Class.forName("net.minecraft.world.entity.EntityDimensions");
-			Method m = c.getDeclaredMethod("fixed", float.class, float.class);
 			ReflectionUtils.set(Entity.class, ReflectionUtils.invokeMethod(entity, "getHandle"),
-					"dimensions", m.invoke(null, width, height));
-		} catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException ex) {
+					"dimensions", fixedDimensions.invoke(null, width, height));
+		} catch (InvocationTargetException | IllegalAccessException ex) {
 			throw new RuntimeException(ex);
 		}
 	}

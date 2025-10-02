@@ -2,7 +2,6 @@ package me.pseudoknight.chnaughty;
 
 import com.google.gson.JsonSyntaxException;
 import com.laytonsmith.PureUtilities.Version;
-import com.laytonsmith.abstraction.MCCommandSender;
 import com.laytonsmith.abstraction.MCEntity;
 import com.laytonsmith.abstraction.MCLocation;
 import com.laytonsmith.abstraction.MCPlayer;
@@ -27,7 +26,6 @@ import com.laytonsmith.core.exceptions.ConfigCompileException;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.natives.interfaces.Mixed;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
@@ -271,9 +269,7 @@ public class Functions {
 			}
 			range = Math.min(range, VIEW_DISTANCE);
 
-			double yaw = Math.toRadians(loc.getYaw() + 90);
-			double pitch = Math.toRadians(-loc.getPitch());
-			Vector dir = new Vector(Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch));
+			Vector dir = loc.getDirection();
 
 			RayTraceResult blockResult = loc.getWorld().rayTraceBlocks(loc, dir, range, FluidCollisionMode.NEVER, true);
 
@@ -297,7 +293,7 @@ public class Functions {
 			hits.set("location", ObjectGenerator.GetGenerator().location(blockHitPos, false), t);
 			hits.set("origin", ObjectGenerator.GetGenerator().location(new BukkitMCLocation(loc)), t);
 
-			BoundingBox aabb = new BoundingBox(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
+			BoundingBox aabb = BoundingBox.of(start, end);
 			if(raySize != 0.0D) {
 				aabb.expand(raySize);
 			}
