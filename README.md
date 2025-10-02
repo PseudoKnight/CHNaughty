@@ -1,6 +1,6 @@
 # CHNaughty
 
-These functions are using NMS/OBC. They will probably break every MC version change and possibly even more often than that, so you'll need to update the extension when that happens. There's no guarantee that every single Spigot build will be supported in the future, so code appropriately.
+These functions are using (or previously used) NMS/OBC, bypassing the formal API. As such, a few of them may break every MC version change, so you'll need to update the extension when that happens. Functions likely to break on version changes are marked as [unstable] below.
 
 ## Releases
 Latest releases require CommandHelper 3.3.5.
@@ -11,13 +11,13 @@ Latest releases require CommandHelper 3.3.5.
 [Older Releases](https://github.com/PseudoKnight/CHNaughty/releases)
 
 ## Functions
-### open_sign{[player], signLocation, [side], [lines]}
+### open_sign([player], signLocation, [side], [lines])
 Opens a sign editor for the given sign location.  
 The side is optional, and must be FRONT or BACK. (default FRONT)  
 Lines must be an array with up to 4 values or null. If not provided, it'll use the existing lines.  
 Throws CastException if not a sign block.
 
-### open_book{[player], pages | [player], hand}
+### open_book([player], pages | [player], hand)
 Sends a virtual book to a player.  
 Accepts an array of pages or the player hand (MAIN_HAND, OFF_HAND) in which an existing book resides.  
 All pages must be either raw JSON or strings. If the JSON is not formatted correctly, it will fall back to string output.  
@@ -37,7 +37,7 @@ Swing the player's hand in an attack animation. The hand parameter can be either
 Sets the amount of arrows in a player's model.  
 Optional number of ticks the arrow count will persist until arrows start despawning again. (default: 20 * (30 - count))
 
-### set_pstinger_count([player], count)
+### set_pstinger_count([player], count) [unstable on Spigot]
 Sets the amount of bee stingers in a player's model.
 
 ### ray_trace([player], [location], [range], [raySize])
@@ -53,7 +53,7 @@ Result array contains the following keys:
 ### tps()
 Returns an array of average ticks per second over 5, 10 and 15 minutes. eg. {19.9999999,19.99888567,19.56889299}
 
-### set_entity_size(entity, width, height)
+### set_entity_size(entity, width, height) [unstable on Spigot]
 Sets an entity collision box's width and height used for movement.  
 This gets reset every time the entity's pose changes and isn't used when entity is stationary.  
 It's better to use the GENERIC_SCALE attribute where possible.  
