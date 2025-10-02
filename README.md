@@ -5,7 +5,7 @@ These functions are using (or previously used) NMS/OBC, bypassing the formal API
 ## Releases
 Latest releases require CommandHelper 3.3.5.
 
-[CHNaughty 5.4.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.4.0) for Paper and Spigot 1.20.5 - 1.21.9  
+[CHNaughty 5.4.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.4.1) for Paper and Spigot 1.20.5 - 1.21.9  
 [CHNaughty 4.14.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) for Paper and Spigot 1.20.3 - 1.20.4  
 [CHNaughty 4.13.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.13.0) for Paper and Spigot 1.20.2  
 [Older Releases](https://github.com/PseudoKnight/CHNaughty/releases)
@@ -48,7 +48,7 @@ Result array contains the following keys:
 'block' is the location of the block that was hit (or null);  
 'location' contains the location where the ray trace ends;  
 'origin' contains the location where the ray trace starts (useful if you don't specify a location);  
-'entities' contains an array of hit entities where each array contains a 'location' key and 'uuid' key.
+'entities' contains an array of hit living entities where each array contains a 'location' key and 'uuid' key. Ignores the current player and spectators.
 
 ### tps()
 Returns an array of average ticks per second over 5, 10 and 15 minutes. eg. {19.9999999,19.99888567,19.56889299}

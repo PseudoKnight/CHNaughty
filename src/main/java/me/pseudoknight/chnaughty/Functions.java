@@ -29,6 +29,7 @@ import com.laytonsmith.core.natives.interfaces.Mixed;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -297,7 +298,9 @@ public class Functions {
 			if(raySize != 0.0D) {
 				aabb.expand(raySize);
 			}
-			Collection<org.bukkit.entity.Entity> validTargets = loc.getWorld().getNearbyEntities(aabb, entity -> entity instanceof LivingEntity && !entity.equals(p));
+			Collection<org.bukkit.entity.Entity> validTargets = loc.getWorld().getNearbyEntities(aabb,
+					entity -> entity instanceof LivingEntity
+					&& !(entity instanceof Player player && (player.equals(p) || player.getGameMode() == GameMode.SPECTATOR)));
 			CArray hitEntities = new CArray(t);
 			for(org.bukkit.entity.Entity entity : validTargets) {
 				BoundingBox boundingBox = entity.getBoundingBox();
