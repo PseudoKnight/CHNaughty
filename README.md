@@ -5,7 +5,7 @@ These functions are using (or previously used) NMS/OBC, bypassing the formal API
 ## Releases
 Latest releases require CommandHelper 3.3.5.
 
-[CHNaughty 5.4.1](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.4.1) for Paper and Spigot 1.20.5 - 1.21.11  
+[CHNaughty 5.4.2](https://github.com/PseudoKnight/CHNaughty/releases/tag/v5.4.2) for Paper and Spigot 1.20.5 - 1.21.11  
 [CHNaughty 4.14.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.14.0) for Paper and Spigot 1.20.3 - 1.20.4  
 [CHNaughty 4.13.0](https://github.com/PseudoKnight/CHNaughty/releases/tag/v4.13.0) for Paper and Spigot 1.20.2  
 [Older Releases](https://github.com/PseudoKnight/CHNaughty/releases)

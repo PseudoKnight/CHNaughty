@@ -12,7 +12,7 @@ public abstract class NMS {
 	public static NMS GetImpl() {
 		if(Impl == null) {
 			try {
-				Class.forName("com.destroystokyo.paper.PaperConfig");
+				Class.forName("io.papermc.paper.configuration.Configuration");
 				Impl = new PaperImpl();
 			} catch (ClassNotFoundException e) {
 				Impl = new SpigotImpl();
